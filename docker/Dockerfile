@@ -71,10 +71,6 @@ COPY smallbaselineApp.cfg smallbaselineApp.cfg
 COPY run_pge.py run_pge.py
 COPY run.sh run.sh
 
-COPY .netrc /home/ops/.netrc
-RUN sudo chown ops:ops /home/ops/.netrc
-RUN chmod go-r /home/ops/.netrc
-
 # set entrypoint
 WORKDIR /home/ops
 CMD ["/bin/bash", "--login"]
