@@ -1,0 +1,30 @@
+{
+  "label": "MintPy (SNWE Bounds)",
+  "submission_type": "individual",
+  "params": [
+    {
+      "name": "latitude_longitude_bounds",
+      "from": "submitter",
+      "type": "text",
+      "default": "18.8 20.3 -156.1 -154.8"
+    },
+    {
+      "name": "track_number",
+      "from": "submitter",
+      "type": "text",
+      "default": "124"
+    },
+    {
+      "name": "start_date",
+      "from": "submitter",
+      "type": "text",
+      "default": "20181215"
+    },
+    {
+      "name": "end_date",
+      "from": "submitter",
+      "type": "text",
+      "default": "20190101"
+    }
+  ]
+}

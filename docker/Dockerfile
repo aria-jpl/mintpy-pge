@@ -75,7 +75,8 @@ COPY .netrc .netrc
 RUN sudo chown ops:ops .netrc
 RUN chmod go-r .netrc
 
-# Copy in scripts
-COPY wrapper_scripts/ wrapper_scripts
+# Copy in scripts and configuration
+COPY wrapper_scripts wrapper_scripts
+COPY smallbaselineApp.cfg smallbaselineApp.cfg
 COPY run_pge.py run_pge.py
 COPY run.sh run.sh

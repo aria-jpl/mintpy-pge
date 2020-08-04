@@ -1,0 +1,32 @@
+{
+  "command": "/home/ops/verdi/ops/mintpy-pge/wrapper_scripts/.sh",
+  "imported_worker_files": {
+    "/home/ops/.netrc": "/home/ops/.netrc",
+    "/home/ops/.aws": "/home/ops/.aws",
+    "/home/ops/ariamh/conf/settings.conf": "/home/ops/ariamh/conf/settings.conf"
+  },
+  "disk_usage": "2GB",
+  "recommended-queues": [
+    "factotum-job_worker-small"
+  ],
+  "soft_time_limit": 1800,
+  "time_limit": 3600,
+  "params": [
+    {
+      "name": "latitude_longitude_bounds",
+      "destination": "positional"
+    },
+    {
+      "name": "track_number",
+      "destination": "positional"
+    },
+    {
+      "name": "start_date",
+      "destination": "positional"
+    },
+    {
+      "name": "end_date",
+      "destination": "positional"
+    }
+  ]
+}
