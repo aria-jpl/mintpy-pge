@@ -16,10 +16,12 @@ RUN set -ex \
  && echo "==========Checking out the latest release for ARIA-tools==========" \
  && pushd ARIA-tools \
 # && ariaPath=$(pwd) \
- && latesttag=$(git describe --tags) \
- && IFS='-' read -ra latestRelease <<< "${latesttag}" ; unset IFS \
- && echo "${latestRelease}" \
- && git checkout ${latestRelease} \
+# && latesttag=$(git describe --tags) \
+# && IFS='-' read -ra latestRelease <<< "${latesttag}" ; unset IFS \
+# && echo "${latestRelease}" \
+# && git checkout ${latestRelease} \
+# TEMPORARY DEV VERSION CHECKOUT TO FIX NETRC
+ && git checkout 35e689f53746f882065ec437cd825af729cd3e2f \
  && popd \
 
  && echo "==========Cloning MintPy==========" \
