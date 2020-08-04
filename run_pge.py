@@ -209,13 +209,15 @@ def main(**kwargs):
     minOverlap = minOverlap * 0.9
     print("Minimum Area threshold set to 90%" + " or %fkm\u00b2" % (minOverlap))
 
+    # Prepare the time-series data using ARIA-Tools
     subprocess.call(['./wrapper_scripts/prepare_time_series.sh', downloadDir, bbox, str(minOverlap)])
 
     subprocess.call(['ls', './stack'])
     subprocess.call(['ls', './DEM/SRTM_3arcsec.dem'])
     subprocess.call(['ls', './mask/watermask.msk'])
-    #
-    # !smallbaselineApp.py -g smallbaselineApp.cfg --dostep load_data
+
+    # Run MintPy using the ARIA configuration
+    subprocess.call(['smallbaselineApp.py' './smallbaselineApp.cfg'])
 
 
 if __name__ == '__main__':
