@@ -24,7 +24,7 @@
       "name": "end_date",
       "from": "submitter",
       "type": "text",
-      "default": "20190101"
+      "default": "20190121"
     }
   ]
 }
