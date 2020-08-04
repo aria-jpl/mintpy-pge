@@ -69,12 +69,6 @@ RUN echo "==========Install third party dependencies for ARIA-tools==========" \
 
 WORKDIR /home/ops
 
-# Copy in credentials
-# TODO: Set up to ingest PGE standard .netrc per Hook's comment
-COPY .netrc .netrc
-RUN sudo chown ops:ops .netrc
-RUN chmod go-r .netrc
-
 # Copy in scripts and configuration
 COPY wrapper_scripts wrapper_scripts
 COPY smallbaselineApp.cfg smallbaselineApp.cfg
