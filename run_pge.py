@@ -211,14 +211,9 @@ def main(**kwargs):
 
     subprocess.call(['./wrapper_scripts/prepare_time_series.sh', downloadDir, bbox, str(minOverlap)])
 
-    subprocess.call(['ls', './stack/*'])
+    subprocess.call(['ls', './stack'])
     subprocess.call(['ls', './DEM/SRTM_3arcsec.dem'])
     subprocess.call(['ls', './mask/watermask.msk'])
-
-    # !ls stack/*
-    # !ls dem/SRTM_3arcsec.dem
-    # !ls mask/watermask.msk
-    #
     #
     # !smallbaselineApp.py -g smallbaselineApp.cfg --dostep load_data
 
