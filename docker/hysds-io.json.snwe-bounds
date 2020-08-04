@@ -1,6 +1,7 @@
 {
   "label": "MintPy (SNWE Bounds)",
   "submission_type": "individual",
+  "enable_dedup": false,
   "params": [
     {
       "name": "latitude_longitude_bounds",
