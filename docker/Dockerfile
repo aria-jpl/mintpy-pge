@@ -5,8 +5,11 @@ LABEL description="Multi-Temporal Anomaly Detection for SAR Earth Observations M
 ARG id
 ARG gid
 
+ARG verdi_root="/home/ops/verdi/ops"
+ARG pge_root="${verdi_root}/mintpy-pge"
+
 USER ops
-WORKDIR /home/ops/verdi/ops
+WORKDIR $verdi_root
 
 # Set up virtual environment for ARIA-tools/MintPy
 COPY ariaMintpy_env.yml ariaMintpy_env.yml
@@ -46,31 +49,31 @@ ENV GDAL_HTTP_COOKIEFILE "/tmp/cookies.txt"
 ENV GDAL_HTTP_COOKIEJAR "/tmp/cookies.txt"
 ENV VSI_CACHE "YES"
 
-ENV ARIATOOLSHOME "/home/ops/verdi/ops/ARIA-tools"
+ENV ARIATOOLSHOME "${verdi_root}/ARIA-tools"
 ENV ARIABINS "${ARIATOOLSHOME}/tools/bin"
-ENV PYTHONPATH "${PYTHONPATH}${PYTHONPATH:+:}/home/ops/verdi/ops/ARIA-tools/tools"
-ENV PATH "${PATH}${PATH:+:}/home/ops/verdi/ops/binARIA-tools/tools/"
-ENV PATH "${PATH}${PATH:+:}/home/ops/verdi/ops/binARIA-tools/tools/ARIAtools"
+ENV PYTHONPATH "${PYTHONPATH}${PYTHONPATH:+:}${verdi_root}/ARIA-tools/tools"
+ENV PATH "${PATH}${PATH:+:}${verdi_root}/ARIA-tools/tools/ARIAtools"
 
-ENV MINTPYHOME "/home/ops/verdi/ops/MintPy"
-ENV PYTHONPATH "${PYTHONPATH}:/home/ops/verdi/ops/MintPy/"
-ENV PATH "${PATH}:/home/ops/verdi/ops/MintPy/mintpy"
+ENV MINTPYHOME "${verdi_root}/MintPy"
+ENV PYTHONPATH "${PYTHONPATH}:${verdi_root}/MintPy/"
+ENV PATH "${PATH}:${verdi_root}/MintPy/mintpy"
 
 # Make subsequent RUN commands use the conda environment:
 # per https://pythonspeed.com/articles/activate-conda-dockerfile/
 SHELL ["/opt/conda/bin/conda", "run", "-n", "ariaMintpy", "/bin/bash", "-c"]
 
 RUN echo "==========Install third party dependencies for ARIA-tools==========" \
- && cd /home/ops/verdi/ops/ARIA-tools \
+ && cd "${verdi_root}/ARIA-tools" \
  && python3 setup.py build \
  && python3 setup.py install
 
 # Copy in scripts and configuration
-COPY wrapper_scripts wrapper_scripts
-COPY smallbaselineApp.cfg smallbaselineApp.cfg
-COPY run_pge.py run_pge.py
-COPY run.sh run.sh
+WORKDIR "${pge_root}"
+COPY . .
+
+RUN set -ex \
+ && sudo chown -R ops:ops /home/ops/verdi/ops/mintpy-pge
 
 # set entrypoint
-WORKDIR /home/ops
+WORKDIR "${pge_root}"
 CMD ["/bin/bash", "--login"]
