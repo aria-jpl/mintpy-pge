@@ -5,8 +5,8 @@ LABEL description="Multi-Temporal Anomaly Detection for SAR Earth Observations M
 ARG id
 ARG gid
 
-ARG verdi_root="/home/ops/verdi/ops"
-ARG pge_root="${verdi_root}/mintpy-pge"
+ENV verdi_root="/home/ops/verdi/ops"
+ENV pge_root="${verdi_root}/mintpy-pge"
 
 USER ops
 WORKDIR $verdi_root
