@@ -52,19 +52,15 @@ ENV GDAL_HTTP_COOKIEFILE "/tmp/cookies.txt"
 ENV GDAL_HTTP_COOKIEJAR "/tmp/cookies.txt"
 ENV VSI_CACHE "YES"
 
-ENV ARIATOOLSHOME "${verdi_root}/ARIA-tools"
-ENV ARIABINS "${ARIATOOLSHOME}/tools/bin"
-ENV PYTHONPATH "${PYTHONPATH}${PYTHONPATH:+:}${ARIATOOLSHOME}/tools"
-ENV PATH "${PATH}${PATH:+:}${ARIATOOLSHOME}/tools/ARIAtools"
-
 ENV MINTPYHOME "${verdi_root}/MintPy"
 ENV PYTHONPATH "${PYTHONPATH}:${MINTPYHOME}"
-ENV PATH "${PATH}:${MINTPYHOME}/mintpy"
+ENV PATH "${PATH}${PATH:+:}${MINTPYHOME}/mintpy"
 
 # Make subsequent RUN commands use the conda environment:
 # per https://pythonspeed.com/articles/activate-conda-dockerfile/
 SHELL ["/opt/conda/bin/conda", "run", "-n", "ariaMintpy", "/bin/bash", "-c"]
 
+ARG ARIATOOLSHOME="${verdi_root}/ARIA-tools"
 RUN echo "==========Install third party dependencies for ARIA-tools==========" \
  && cd $ARIATOOLSHOME \
  && python3 setup.py build \
