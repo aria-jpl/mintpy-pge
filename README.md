@@ -1,2 +1,2 @@
-# access-mintpy-pge
-ACCESS Multi-Temporal Anomaly Detection for SAR MintPy PGE
+# mintpy-pge
+PGE wrapper for Mintpy displacement time series.
