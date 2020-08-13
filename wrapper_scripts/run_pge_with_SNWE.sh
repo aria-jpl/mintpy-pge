@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Ensure conda is available
-source /etc/profile
-source /home/ops/.profile
-source /etc/bashrc
-source /home/ops/.bashrc
+. /opt/conda/etc/profile.d/conda.sh
+conda activate base
+export LD_LIBRARY_PATH=/opt/conda/lib:/usr/lib:/usr/lib64:/usr/local/lib:$LD_LIBRARY_PATH
+
 
 # Activate conda environment
 #conda_base=$(conda info --base)
