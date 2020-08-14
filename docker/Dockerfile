@@ -69,9 +69,8 @@ RUN echo "==========Install third party dependencies for ARIA-tools==========" \
 # Copy in scripts and configuration
 WORKDIR $pge_root
 COPY . .
-
 RUN set -ex \
- && sudo chown -R ops:ops /home/ops/verdi/ops/mintpy-pge
+ && sudo chown -R ops:ops .
 
 # set entrypoint
 WORKDIR $pge_root
