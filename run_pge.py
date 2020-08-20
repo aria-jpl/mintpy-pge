@@ -65,6 +65,9 @@ def main(**kwargs):
     tutorial_home_dir = os.path.abspath(os.getcwd())
     print("Tutorial directory: ", tutorial_home_dir)
 
+    pge_root = '/home/ops/verdi/ops/mintpy-pge'
+    wrapper_script_dir = '{}/wrapper_scripts'.format(pge_root)
+
     # Verifying if ARIA-tools is installed correctly
     try:
         import ARIAtools.shapefile_util as shputil
@@ -119,7 +122,7 @@ def main(**kwargs):
 
     # Download the data products
     subprocess.call(
-        ['./wrapper_scripts/download_data_products.sh', tracknumber, downloadDir, bbox, start, end, download])
+        ['{}/download_data_products.sh'.format(wrapper_script_dir), tracknumber, downloadDir, bbox, start, end, download])
 
     ## Caling the DAAC API and retrieving the SLCs outlines
     # checking if bbox exist
@@ -210,14 +213,14 @@ def main(**kwargs):
     print("Minimum Area threshold set to 90%" + " or %fkm\u00b2" % (minOverlap))
 
     # Prepare the time-series data using ARIA-Tools
-    subprocess.call(['./wrapper_scripts/prepare_time_series.sh', downloadDir, bbox, str(minOverlap)])
+    subprocess.call(['{}/prepare_time_series.sh'.format(wrapper_script_dir), downloadDir, bbox, str(minOverlap)])
 
     subprocess.call(['ls', './stack'])
     subprocess.call(['ls', './DEM/SRTM_3arcsec.dem'])
     subprocess.call(['ls', './mask/watermask.msk'])
 
     # Run MintPy using the ARIA configuration
-    subprocess.call(['smallbaselineApp.py', './smallbaselineApp.cfg'])
+    subprocess.call(['smallbaselineApp.py', '{}/smallbaselineApp.cfg'.format(pge_root)])
 
 
 if __name__ == '__main__':
