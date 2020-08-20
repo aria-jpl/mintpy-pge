@@ -1,9 +1,7 @@
 {
   "command": "/home/ops/verdi/ops/mintpy-pge/wrapper_scripts/run_pge_with_SNWE.sh",
   "imported_worker_files": {
-    "/home/ops/.netrc": "/home/ops/.netrc",
-    "/home/ops/.aws": "/home/ops/.aws",
-    "/home/ops/ariamh/conf/settings.conf": "/home/ops/ariamh/conf/settings.conf"
+    "/home/ops/.netrc": "/home/ops/.netrc"
   },
   "disk_usage": "2GB",
   "recommended-queues": [
