@@ -18,20 +18,14 @@ RUN /bin/bash --login -c "conda env create -f ariaMintpy_env.yml"
 # Clone project dependencies
 RUN set -ex \
  && echo "==========Cloning ARIA-tools==========" \
-# && git clone https://github.com/aria-tools/ARIA-tools.git \
-# TEMPORARY ALEX VERSION TO FIX IMPORT ISSUE \
- && git clone https://github.com/alexdunncs/ARIA-tools.git \
+ && git clone https://github.com/aria-tools/ARIA-tools.git \
  && echo "==========Checking out the latest release for ARIA-tools==========" \
  && pushd ARIA-tools \
-# && ariaPath=$(pwd) \
-# && latesttag=$(git describe --tags) \
-# && IFS='-' read -ra latestRelease <<< "${latesttag}" ; unset IFS \
-# && echo "${latestRelease}" \
-# && git checkout ${latestRelease} \
-# TEMPORARY ALEX VERSION TO FIX IMPORT ISSUE
- && git checkout dev \
-# TEMPORARY DEV VERSION CHECKOUT TO FIX NETRC
-# && git checkout 35e689f53746f882065ec437cd825af729cd3e2f \
+ && ariaPath=$(pwd) \
+ && latesttag=$(git describe --tags) \
+ && IFS='-' read -ra latestRelease <<< "${latesttag}" ; unset IFS \
+ && echo "${latestRelease}" \
+ && git checkout ${latestRelease} \
  && popd \
  && echo "==========Cloning MintPy==========" \
  && git clone https://github.com/insarlab/MintPy.git \
@@ -56,16 +50,14 @@ ENV PYTHONPATH "${PYTHONPATH}:${MINTPYHOME}"
 ENV PATH "${PATH}${PATH:+:}${MINTPYHOME}/mintpy"
 
 # Copy in scripts and configuration
-USER root
 COPY . $pge_root
 RUN set -ex \
- && sudo chown -R ops:ops $pge_root
+ && sudo chmod -R +w $pge_root
 
 # Create data output directory
-USER root
 WORKDIR $work_dir
 RUN set -ex \
- && sudo chown -R ops:ops $work_dir
+ && sudo chmod -R +w $work_dir
 
 
 # Make subsequent RUN commands use the conda environment:
