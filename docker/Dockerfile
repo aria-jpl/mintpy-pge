@@ -50,14 +50,14 @@ ENV PYTHONPATH "${PYTHONPATH}:${MINTPYHOME}"
 ENV PATH "${PATH}${PATH:+:}${MINTPYHOME}/mintpy"
 
 # Copy in scripts and configuration
-COPY . $pge_root
-RUN set -ex \
- && sudo chmod -R +w $pge_root
+COPY --chown ops:ops $pge_root
+#RUN set -ex \
+# && sudo chown -R ops:ops "${pge_root}"
 
-# Create data output directory
-WORKDIR $work_dir
-RUN set -ex \
- && sudo chmod -R +w $work_dir
+## Create data output directory
+#WORKDIR $work_dir
+#RUN set -ex \
+# && sudo chown -R ops:ops $work_dir
 
 
 # Make subsequent RUN commands use the conda environment:
@@ -73,5 +73,6 @@ RUN echo "==========Install third party dependencies for ARIA-tools==========" \
 
 # set entrypoint
 USER ops
-WORKDIR $work_dir
+#WORKDIR $work_dir
+WORKDIR $pge_root
 CMD ["/bin/bash", "--login"]
