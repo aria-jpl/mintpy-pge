@@ -7,11 +7,10 @@ ARG gid
 
 ENV verdi_root="/home/ops/verdi/ops"
 ENV pge_root="${verdi_root}/mintpy-pge"
-
-USER ops
-WORKDIR $verdi_root
+ENV work_dir="/data/mintpy-pge"
 
 # Set up virtual environment for ARIA-tools/MintPy
+WORKDIR $verdi_root
 COPY ariaMintpy_env.yml ariaMintpy_env.yml
 RUN echo "==========Start creating the environment and install dependencies with conda=========="
 RUN /bin/bash --login -c "conda env create -f ariaMintpy_env.yml"
@@ -71,6 +70,10 @@ COPY . $pge_root
 RUN set -ex \
  && sudo chown -R ops:ops $pge_root
 
+# Create data output directory
+WORKDIR $work_dir
+
 # set entrypoint
-WORKDIR $pge_root
+USER ops
+WORKDIR $work_dir
 CMD ["/bin/bash", "--login"]
