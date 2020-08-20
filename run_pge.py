@@ -62,8 +62,8 @@ def parse_date(_):
 
 
 def main(**kwargs):
-    tutorial_home_dir = os.path.abspath(os.getcwd())
-    print("Tutorial directory: ", tutorial_home_dir)
+    working_directory = os.path.abspath(os.getcwd())
+    print("Working directory: ", working_directory)
 
     pge_root = '/home/ops/verdi/ops/mintpy-pge'
     wrapper_script_dir = '{}/wrapper_scripts'.format(pge_root)
