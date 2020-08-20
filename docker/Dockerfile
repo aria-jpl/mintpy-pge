@@ -55,7 +55,7 @@ COPY --chown=ops:ops . $pge_root
 # && sudo chown -R ops:ops "${pge_root}"
 
 ## Create data output directory
-#WORKDIR $work_dir
+WORKDIR $work_dir
 #RUN set -ex \
 # && sudo chown -R ops:ops $work_dir
 

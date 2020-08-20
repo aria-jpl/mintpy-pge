@@ -12,5 +12,8 @@ export LD_LIBRARY_PATH=/opt/conda/lib:/usr/lib:/usr/lib64:/usr/local/lib:$LD_LIB
 #conda activate ariaMintpy
 source activate ariaMintpy
 
+# Ensure pge_root and working directory are writable by ops user
+sudo chown -R ops:ops $pge_root $work_dir
+
 # Run PGE
 python ${pge_root}/run_pge.py --bounds "18.8 20.3 -156.1 -154.8" --tracknumber "124" --start "20181215" --end "20190121"
