@@ -50,7 +50,7 @@ ENV PYTHONPATH "${PYTHONPATH}:${MINTPYHOME}"
 ENV PATH "${PATH}${PATH:+:}${MINTPYHOME}/mintpy"
 
 # Copy in scripts and configuration
-COPY --chown ops:ops $pge_root
+COPY --chown=ops:ops . $pge_root
 #RUN set -ex \
 # && sudo chown -R ops:ops "${pge_root}"
 
