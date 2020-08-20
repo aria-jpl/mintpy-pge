@@ -55,16 +55,6 @@ ENV MINTPYHOME "${verdi_root}/MintPy"
 ENV PYTHONPATH "${PYTHONPATH}:${MINTPYHOME}"
 ENV PATH "${PATH}${PATH:+:}${MINTPYHOME}/mintpy"
 
-# Make subsequent RUN commands use the conda environment:
-# per https://pythonspeed.com/articles/activate-conda-dockerfile/
-SHELL ["/opt/conda/bin/conda", "run", "-n", "ariaMintpy", "/bin/bash", "-c"]
-
-ARG ARIATOOLSHOME="${verdi_root}/ARIA-tools"
-RUN echo "==========Install third party dependencies for ARIA-tools==========" \
- && cd $ARIATOOLSHOME \
- && python3 setup.py build \
- && python3 setup.py install
-
 # Copy in scripts and configuration
 USER root
 COPY . $pge_root
@@ -76,6 +66,18 @@ USER root
 WORKDIR $work_dir
 RUN set -ex \
  && sudo chown -R ops:ops $work_dir
+
+
+# Make subsequent RUN commands use the conda environment:
+# per https://pythonspeed.com/articles/activate-conda-dockerfile/
+USER ops
+SHELL ["/opt/conda/bin/conda", "run", "-n", "ariaMintpy", "/bin/bash", "-c"]
+
+ARG ARIATOOLSHOME="${verdi_root}/ARIA-tools"
+RUN echo "==========Install third party dependencies for ARIA-tools==========" \
+ && cd $ARIATOOLSHOME \
+ && python3 setup.py build \
+ && python3 setup.py install
 
 # set entrypoint
 USER ops
