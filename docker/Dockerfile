@@ -66,12 +66,16 @@ RUN echo "==========Install third party dependencies for ARIA-tools==========" \
  && python3 setup.py install
 
 # Copy in scripts and configuration
+USER root
 COPY . $pge_root
 RUN set -ex \
  && sudo chown -R ops:ops $pge_root
 
 # Create data output directory
+USER root
 WORKDIR $work_dir
+RUN set -ex \
+ && sudo chown -R ops:ops $work_dir
 
 # set entrypoint
 USER ops
