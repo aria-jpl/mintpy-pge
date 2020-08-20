@@ -16,8 +16,9 @@ source activate ariaMintpy
 sudo chown -R ops:ops $pge_root $work_dir
 
 # Create unique working directory for job (DEV VERSION - ONLY HAS SECONDS RESOLUTION)
-work_dir=$(per_job_printf '%(%s)T\n' -1)
-cd $work_dir || exit 1
+work_dir="${work_root}/$(printf '%(%s)T\n' -1)"
+sudo mkdir ${work_dir} && cd $work_dir || exit 1
+sudo chown ops:ops $work_dir
 
 # Run PGE
 python ${pge_root}/run_pge.py --bounds "18.8 20.3 -156.1 -154.8" --tracknumber "124" --start "20181215" --end "20190121"
