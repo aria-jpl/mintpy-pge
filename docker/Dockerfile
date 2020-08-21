@@ -7,16 +7,15 @@ ARG gid
 
 ENV verdi_root="/home/ops/verdi/ops"
 ENV pge_root="${verdi_root}/mintpy-pge"
-ENV work_root="/data/mintpy-pge"
 
 # Set up virtual environment for ARIA-tools/MintPy
-WORKDIR $verdi_root
 COPY ariaMintpy_env.yml ariaMintpy_env.yml
 RUN echo "==========Start creating the environment and install dependencies with conda=========="
 RUN /bin/bash --login -c "conda env create -f ariaMintpy_env.yml"
 
 # Clone project dependencies
 RUN set -ex \
+ && cd $verdi_root \
  && echo "==========Cloning ARIA-tools==========" \
  && git clone https://github.com/aria-tools/ARIA-tools.git \
  && echo "==========Checking out the latest release for ARIA-tools==========" \
@@ -52,9 +51,6 @@ ENV PATH "${PATH}${PATH:+:}${MINTPYHOME}/mintpy"
 # Copy in scripts and configuration
 COPY --chown=ops:ops . $pge_root
 
-## Create data output directory
-WORKDIR $work_root
-
 # Make subsequent RUN commands use the conda environment:
 # per https://pythonspeed.com/articles/activate-conda-dockerfile/
 USER ops
@@ -68,6 +64,5 @@ RUN echo "==========Install third party dependencies for ARIA-tools==========" \
 
 # set entrypoint
 USER ops
-#WORKDIR $work_dir
-WORKDIR $work_root
+#WORKDIR "tempworkingdirectory"
 CMD ["/bin/bash", "--login"]

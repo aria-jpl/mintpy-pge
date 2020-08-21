@@ -1,30 +1,18 @@
 #!/bin/bash
 
-# Ensure conda is available
+echo "Ensuring conda is available..."
 . /opt/conda/etc/profile.d/conda.sh
 conda activate base
 export LD_LIBRARY_PATH=/opt/conda/lib:/usr/lib:/usr/lib64:/usr/local/lib:$LD_LIBRARY_PATH
 
-
-# Activate conda environment
-#conda_base=$(conda info --base)
-#source "${conda_base}/etc/profile.d/conda.sh"
-#conda activate ariaMintpy
+echo "Activating conda environment"
 source activate ariaMintpy
 
-# Ensure pge_root and working directory are writable by ops user
-sudo chown -R ops:ops $pge_root $work_dir
+echo "Owning pge_root and cwd"
+sudo chown -R ops:ops $pge_root .
 
-# Create unique working directory for job (DEV VERSION - ONLY HAS SECONDS RESOLUTION)
-work_dir="${work_root}/$(printf '%(%s)T\n' -1)"
-sudo mkdir ${work_dir} && cd $work_dir || exit 1
-sudo chown ops:ops $work_dir
+echo "Copying MintPy config to working directory"
+cp "${pge_root}/smallbaselineApp.cfg" "./smallbaselineApp.cfg"
 
-# Copy MintPy config to working directory
-cp "${pge_root}/smallbaselineApp.cfg" "${work_dir}/smallbaselineApp.cfg"
-
-## Create empty cookiejar
-#touch "/home/ops/.bulk_download_cookiejar.txt"
-
-# Run PGE
+echo "Running PGE"
 python ${pge_root}/run_pge.py --bounds "18.8 20.3 -156.1 -154.8" --tracknumber "124" --start "20181215" --end "20190121"
