@@ -18,13 +18,8 @@ RUN set -ex \
  && cd $verdi_root \
  && echo "==========Cloning ARIA-tools==========" \
  && git clone https://github.com/aria-tools/ARIA-tools.git \
- && echo "==========Checking out the latest release for ARIA-tools==========" \
- && pushd ARIA-tools \
- && ariaPath=$(pwd) \
- && latesttag=$(git describe --tags) \
- && IFS='-' read -ra latestRelease <<< "${latesttag}" ; unset IFS \
- && echo "${latestRelease}" \
- && git checkout ${latestRelease} \
+ && echo "==========Checking out the correct pinned release for ARIA-tools==========" \
+ && git checkout "v1.1.1" \
  && popd \
  && echo "==========Cloning MintPy==========" \
  && git clone https://github.com/insarlab/MintPy.git \
