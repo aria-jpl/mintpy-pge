@@ -23,8 +23,8 @@ sudo chown ops:ops $work_dir
 # Copy MintPy config to working directory
 cp "${pge_root}/smallbaselineApp.cfg" "${work_dir}/smallbaselineApp.cfg"
 
-# Create empty cookiejar
-touch "/home/ops/.bulk_download_cookiejar.txt"
+## Create empty cookiejar
+#touch "/home/ops/.bulk_download_cookiejar.txt"
 
 # Run PGE
 python ${pge_root}/run_pge.py --bounds "18.8 20.3 -156.1 -154.8" --tracknumber "124" --start "20181215" --end "20190121"
