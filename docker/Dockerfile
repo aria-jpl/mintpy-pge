@@ -19,6 +19,7 @@ RUN set -ex \
  && echo "==========Cloning ARIA-tools==========" \
  && git clone https://github.com/aria-tools/ARIA-tools.git \
  && echo "==========Checking out the correct pinned release for ARIA-tools==========" \
+ && pushd ARIA-tools \
  && git checkout "v1.1.1" \
  && popd \
  && echo "==========Cloning MintPy==========" \
