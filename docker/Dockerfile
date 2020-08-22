@@ -40,8 +40,9 @@ ENV GDAL_HTTP_COOKIEFILE "/tmp/cookies.txt"
 ENV GDAL_HTTP_COOKIEJAR "/tmp/cookies.txt"
 ENV VSI_CACHE "YES"
 
+ENV ARIATOOLSHOME "${verdi_root}/ARIA-tools/tools"
 ENV MINTPYHOME "${verdi_root}/MintPy"
-ENV PYTHONPATH "${PYTHONPATH}${PYTHONPATH:+:}:${MINTPYHOME}"
+ENV PYTHONPATH "${PYTHONPATH}${PYTHONPATH:+:}:${ARIATOOLSHOME}:${MINTPYHOME}"
 ENV PATH "${PATH}${PATH:+:}${MINTPYHOME}/mintpy"
 
 # Copy in scripts and configuration
