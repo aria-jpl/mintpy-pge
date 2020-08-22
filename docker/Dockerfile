@@ -41,7 +41,7 @@ ENV GDAL_HTTP_COOKIEJAR "/tmp/cookies.txt"
 ENV VSI_CACHE "YES"
 
 ENV MINTPYHOME "${verdi_root}/MintPy"
-ENV PYTHONPATH "${PYTHONPATH}:${MINTPYHOME}"
+ENV PYTHONPATH "${PYTHONPATH}${PYTHONPATH:+:}:${MINTPYHOME}"
 ENV PATH "${PATH}${PATH:+:}${MINTPYHOME}/mintpy"
 
 # Copy in scripts and configuration
