@@ -5,8 +5,11 @@ echo "Ensuring conda is available..."
 conda activate base
 export LD_LIBRARY_PATH=/opt/conda/lib:/usr/lib:/usr/lib64:/usr/local/lib:$LD_LIBRARY_PATH
 
+echo "Listing available environments:"
+conda env list
+
 echo "Activating conda environment"
-source activate ariaMintpy
+conda activate ariaMintpy
 
 echo "Checking active conda environment: '${CONDA_DEFAULT_ENV}'"
 echo "Checking PYTHONPATH: ${PYTHONPATH}"
