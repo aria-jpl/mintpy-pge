@@ -20,4 +20,6 @@ echo "Copying MintPy config to working directory"
 cp "${pge_root}/smallbaselineApp.cfg" "./smallbaselineApp.cfg"
 
 echo "Running PGE"
+export PATH=/opt/conda/bin:$(PATH)
+echo "Using python: $(command -v python)"
 python ${pge_root}/run_pge.py --bounds "18.8 20.3 -156.1 -154.8" --tracknumber "124" --start "20181215" --end "20190121"
