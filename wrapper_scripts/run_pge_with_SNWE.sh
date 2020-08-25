@@ -8,8 +8,10 @@ export LD_LIBRARY_PATH=/opt/conda/lib:/usr/lib:/usr/lib64:/usr/local/lib:$LD_LIB
 echo "Activating conda environment"
 source activate ariaMintpy
 
-echo "Owning pge_root and cwd"
-sudo chown -R ops:ops $pge_root .
+echo "Checking active conda environment: '${CONDA_DEFAULT_ENV}'"
+echo "Checking PYTHONPATH: ${PYTHONPATH}"
+#echo "Owning pge_root and cwd"
+#sudo chown -R ops:ops $pge_root .
 
 echo "Copying MintPy config to working directory"
 cp "${pge_root}/smallbaselineApp.cfg" "./smallbaselineApp.cfg"
