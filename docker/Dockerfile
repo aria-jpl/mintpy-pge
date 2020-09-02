@@ -62,4 +62,4 @@ RUN echo "==========Install third party dependencies for ARIA-tools==========" \
 # set entrypoint
 USER ops
 #WORKDIR "tempworkingdirectory"
-CMD ["/bin/bash", "--login"]
+ENTRYPOINT ["/opt/conda/bin/conda", "run", "-n", "ariaMintpy", "${pge_root}/wrapper_scripts/run_pge_with_SNWE.sh"]
