@@ -7,7 +7,7 @@ ARG gid
 
 ENV verdi_root="/home/ops/verdi/ops"
 ENV pge_root="${verdi_root}/mintpy-pge"
-ENV wrapper_scripts_home="${pge_root}/wrapper-scripts"
+ENV wrapper_scripts_home="${pge_root}/wrapper_scripts"
 
 USER root
 # Set up virtual environment for ARIA-tools/MintPy
