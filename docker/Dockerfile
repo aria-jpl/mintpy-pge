@@ -71,6 +71,6 @@ RUN ["chown", "-R", "1003:1003", "/opt/conda/envs"]
 
 # set entrypoint
 USER ops
-CMD ["/opt/conda/bin/conda", "run", "-n", "ariaMintpy", "/bin/bash", "--login", "-c",s "${wrapper_scripts_home}/run_pge_with_SNWE.sh"]
+CMD ["/opt/conda/bin/conda", "run", "-n", "ariaMintpy", "/bin/bash", "--login", "-c", "${wrapper_scripts_home}/run_pge_with_SNWE.sh"]
 #CMD ["/opt/conda/bin/conda", "run", "-n", "ariaMintpy", "/bin/bash", "-c", "--login", "${wrapper_scripts_home}/run_pge_with_SNWE.sh"]
 #ENTRYPOINT ["/opt/conda/bin/conda", "run", "-n", "ariaMintpy", "/bin/bash", "-c", "--login", "${wrapper_scripts_home}/run_pge_with_SNWE.sh"]
