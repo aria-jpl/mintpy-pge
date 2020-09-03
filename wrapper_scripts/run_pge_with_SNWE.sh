@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo "Running PGE wrapper script as $(whoami)"
-echo "/opt/conda/envs/ariaMintpy owned by $(ls -l /opt/conda/envs/ariaMintpy)"
+echo "Running PGE wrapper script as $(echo whoami)"
+#echo "/opt/conda/envs/ariaMintpy owned by $(ls -l /opt/conda/envs/ariaMintpy)"
 
 echo "Ensuring conda is available..."
 . /opt/conda/etc/profile.d/conda.sh
@@ -27,7 +27,7 @@ export PATH="/home/ops/.conda/envs/ariaMintpy/bin:${PATH}"
 echo "Using python: $(command -v python)"
 
 command_to_run="python3 ${pge_root}/run_pge.py --bounds '18.8 20.3 -156.1 -154.8' --tracknumber '124' --start '20181215' --end 20190121'"
-
-/opt/conda/bin/conda run -n ariaMintpy /bin/bash --login -c $command_to_run
+echo "About to run: ${command_to_run}"
+/opt/conda/envs/bin/conda run -n ariaMintpy /bin/bash --login -c $command_to_run
 
 #python3 ${pge_root}/run_pge.py --bounds "18.8 20.3 -156.1 -154.8" --tracknumber "124" --start "20181215" --end "20190121"
