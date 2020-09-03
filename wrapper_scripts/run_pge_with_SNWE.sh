@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "Running PGE wrapper script as $(whoami)"
+echo "/opt/conda/ariaMintpy owned by $(ls -l /opt/conda/ariaMintpy)"
+
 echo "Ensuring conda is available..."
 . /opt/conda/etc/profile.d/conda.sh
 conda activate base
