@@ -68,4 +68,7 @@ RUN ["/bin/bash", "--login", "-c", "python3", "${ARIATOOLSHOME}/setup.py", "inst
 
 # set entrypoint
 USER ops
-ENTRYPOINT ["/opt/conda/bin/conda", "run", "-n", "ariaMintpy", "/bin/bash", "-c", "--login", "${wrapper_scripts_home}/run_pge_with_SNWE.sh"]
+
+CMD ["ls", "-l", "/opt/conda/bin", "&&", "/opt/conda/bin/conda", "run", "-n", "ariaMintpy", "/bin/bash", "-c", "--login", "${wrapper_scripts_home}/run_pge_with_SNWE.sh"]
+#CMD ["/opt/conda/bin/conda", "run", "-n", "ariaMintpy", "/bin/bash", "-c", "--login", "${wrapper_scripts_home}/run_pge_with_SNWE.sh"]
+#ENTRYPOINT ["/opt/conda/bin/conda", "run", "-n", "ariaMintpy", "/bin/bash", "-c", "--login", "${wrapper_scripts_home}/run_pge_with_SNWE.sh"]
