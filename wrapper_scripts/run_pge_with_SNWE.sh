@@ -28,6 +28,6 @@ echo "Using python: $(command -v python)"
 
 command_to_run="python3 ${pge_root}/run_pge.py --bounds '18.8 20.3 -156.1 -154.8' --tracknumber '124' --start '20181215' --end 20190121'"
 echo "About to run: ${command_to_run}"
-/opt/conda/bin/conda run -n ariaMintpy /bin/bash --login -c $command_to_run
+conda run -n ariaMintpy /bin/bash --login -c $command_to_run
 
 #python3 ${pge_root}/run_pge.py --bounds "18.8 20.3 -156.1 -154.8" --tracknumber "124" --start "20181215" --end "20190121"
