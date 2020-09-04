@@ -220,7 +220,7 @@ def main(**kwargs):
     subprocess.call(['ls', './mask/watermask.msk'])
 
     # Run MintPy using the ARIA configuration
-    subprocess.call(['smallbaselineApp.py', './smallbaselineApp.cfg'])
+    subprocess.call(['smallbaselineApp.py', f'{working_directory}/smallbaselineApp.cfg'])
 
 
 if __name__ == '__main__':

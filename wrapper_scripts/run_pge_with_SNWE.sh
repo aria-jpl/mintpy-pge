@@ -26,9 +26,8 @@ echo "Running PGE"
 export PATH="/home/ops/.conda/envs/ariaMintpy/bin:${PATH}"
 echo "Using python: $(command -v python)"
 
-cd $pge_root
 export latlongbounds="18.8 20.3 -156.1 -154.8"
-export command_to_run='python3 run_pge.py --bounds "${latlongbounds}" --tracknumber "124" --start "20181215" --end "20190121"'
+export command_to_run='python3 {$pge_root}/run_pge.py --bounds "${latlongbounds}" --tracknumber "124" --start "20181215" --end "20190121"'
 echo "About to run: ${command_to_run}"
 conda run -n ariaMintpy /bin/bash -c "${command_to_run} > /dev/tty 2>&1"
 
