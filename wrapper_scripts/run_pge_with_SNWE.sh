@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "Running PGE wrapper script as $(echo whoami)"
+#echo "/opt/conda/envs/ariaMintpy owned by $(ls -l /opt/conda/envs/ariaMintpy)"
+
 echo "Ensuring conda is available..."
 . /opt/conda/etc/profile.d/conda.sh
 conda activate base
@@ -20,6 +23,13 @@ echo "Copying MintPy config to working directory"
 cp "${pge_root}/smallbaselineApp.cfg" "./smallbaselineApp.cfg"
 
 echo "Running PGE"
-export PATH=/home/ops/.conda/envs/ariaMintpy/bin:$(PATH)
+export PATH="/home/ops/.conda/envs/ariaMintpy/bin:${PATH}"
 echo "Using python: $(command -v python)"
-python ${pge_root}/run_pge.py --bounds "18.8 20.3 -156.1 -154.8" --tracknumber "124" --start "20181215" --end "20190121"
+
+export latlongbounds="18.8 20.3 -156.1 -154.8"
+export command_to_run='python3 ${pge_root}/run_pge.py --bounds "${latlongbounds}" --tracknumber "124" --start "20181215" --end "20190121"'
+echo "About to run: ${command_to_run}"
+#conda run -n ariaMintpy /bin/bash -c "${command_to_run} > /dev/tty 2>&1"
+conda run -n ariaMintpy /bin/bash -c "${command_to_run}"
+
+#python3 ${pge_root}/run_pge.py --bounds "18.8 20.3 -156.1 -154.8" --tracknumber "124" --start "20181215" --end "20190121"

@@ -1,4 +1,4 @@
-FROM hysds/pge-base:latest
+FROM hysds/pge-base:v3.0.5
 MAINTAINER edunn "Alexander.E.Dunn@jpl.nasa.gov"
 LABEL description="Multi-Temporal Anomaly Detection for SAR Earth Observations MintPy PGE"
 
@@ -7,12 +7,19 @@ ARG gid
 
 ENV verdi_root="/home/ops/verdi/ops"
 ENV pge_root="${verdi_root}/mintpy-pge"
+ENV wrapper_scripts_home="${pge_root}/wrapper_scripts"
 
+USER root
 # Set up virtual environment for ARIA-tools/MintPy
+ENV CONDA_ENVS_PATH="/opt/conda/envs/"
+RUN ["chown", "ops:ops", "/opt/conda/envs"]
+
+USER ops
 COPY ariaMintpy_env.yml ariaMintpy_env.yml
 RUN echo "==========Start creating the environment and install dependencies with conda=========="
-RUN /bin/bash --login -c "conda env create -f ariaMintpy_env.yml"
+RUN ["/bin/bash", "--login", "-c", "conda env create -f ariaMintpy_env.yml"]
 
+USER ops
 # Clone project dependencies
 RUN set -ex \
  && cd $verdi_root \
@@ -41,9 +48,10 @@ ENV GDAL_HTTP_COOKIEJAR "/tmp/cookies.txt"
 ENV VSI_CACHE "YES"
 
 ENV ARIATOOLSHOME "${verdi_root}/ARIA-tools/tools"
+ENV ARIABINS "${ARIATOOLSHOME}/bin"
 ENV MINTPYHOME "${verdi_root}/MintPy"
 ENV PYTHONPATH "${PYTHONPATH}${PYTHONPATH:+:}${ARIATOOLSHOME}:${MINTPYHOME}"
-ENV PATH "${PATH}${PATH:+:}${MINTPYHOME}/mintpy"
+ENV PATH "${PATH}${PATH:+:}${MINTPYHOME}/mintpy:${ARIABINS}"
 
 # Copy in scripts and configuration
 COPY --chown=ops:ops . $pge_root
@@ -53,13 +61,13 @@ COPY --chown=ops:ops . $pge_root
 USER ops
 SHELL ["/opt/conda/bin/conda", "run", "-n", "ariaMintpy", "/bin/bash", "-c"]
 
-ARG ARIATOOLSHOME="${verdi_root}/ARIA-tools"
+ENV ARIATOOLSHOME="${verdi_root}/ARIA-tools"
 RUN echo "==========Install third party dependencies for ARIA-tools==========" \
- && cd $ARIATOOLSHOME \
- && python3 setup.py build \
- && python3 setup.py install
+RUN ["/bin/bash", "--login", "-c", "python3", "${ARIATOOLSHOME}/setup.py", "build"]
+RUN ["/bin/bash", "--login", "-c", "python3", "${ARIATOOLSHOME}/setup.py", "install"]
 
-# set entrypoint
+USER root
+RUN ["chown", "-R", "1003:1003", "/opt/conda/envs"]
+
 USER ops
-#WORKDIR "tempworkingdirectory"
-ENTRYPOINT ["/opt/conda/bin/conda", "run", "-n", "ariaMintpy", "${pge_root}/wrapper_scripts/run_pge_with_SNWE.sh"]
+CMD ["/opt/conda/bin/conda", "run", "-n", "ariaMintpy", "/bin/bash", "--login", "-c", "${wrapper_scripts_home}/run_pge_with_SNWE.sh"]
