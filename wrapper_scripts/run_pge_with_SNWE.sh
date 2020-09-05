@@ -32,4 +32,22 @@ echo "About to run: ${command_to_run}"
 #conda run -n ariaMintpy /bin/bash -c "${command_to_run} > /dev/tty 2>&1"
 conda run -n ariaMintpy /bin/bash -c "${command_to_run}"
 
+# generate dataset ID
+timestamp=$(date -u +%Y%m%dT%H%M%S.%NZ)
+hash=$(echo $timestamp | sha224sum | cut -c1-5)
+id=multi_temporal_anomaly_detection-${timestamp}-${hash}
+echo "dataset ID: $id"
+
+mkdir $id
+cp timeseries.h5 velocity.h5 waterMask.h5 $id
+
+# create minimal dataset JSON file
+dataset_json_file=${id}/${id}.dataset.json
+echo "{\"version\": \"v1.0\"}" > $dataset_json_file
+
+# create minimal metadata file
+metadata_json_file=${id}/${id}.met.json
+echo "{}" > $metadata_json_file
+
+
 #python3 ${pge_root}/run_pge.py --bounds "18.8 20.3 -156.1 -154.8" --tracknumber "124" --start "20181215" --end "20190121"
