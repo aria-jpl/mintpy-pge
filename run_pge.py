@@ -212,6 +212,12 @@ def main(**kwargs):
     minOverlap = minOverlap * 0.9
     print("Minimum Area threshold set to 90%" + " or %fkm\u00b2" % (minOverlap))
 
+    print('Preparing time series using the following arguments:')
+    print('Working directory: {}'.format(working_directory))
+    print('Downloads directory: {}'.format(downloadDir))
+    print('Bounding-box: {}'.format(bbox))
+    print('Minimum overlap: {}'.format(minOverlap))
+
     # Prepare the time-series data using ARIA-Tools
     subprocess.call([f'{wrapper_script_dir}/prepare_time_series.sh', working_directory, downloadDir, bbox, str(minOverlap)])
 
