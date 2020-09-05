@@ -215,7 +215,7 @@ def main(**kwargs):
     # Prepare the time-series data using ARIA-Tools
     subprocess.call([f'{wrapper_script_dir}/prepare_time_series.sh', working_directory, downloadDir, bbox, str(minOverlap)])
 
-    subprocess.call(['ls', f'f{working_directory}/stack'])
+    subprocess.call(['ls', f'{working_directory}/stack'])
     subprocess.call(['ls', f'{working_directory}/DEM/SRTM_3arcsec.dem'])
     subprocess.call(['ls', f'{working_directory}/mask/watermask.msk'])
 
