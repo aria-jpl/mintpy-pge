@@ -7,7 +7,7 @@
       "name": "latitude_longitude_bounds",
       "from": "submitter",
       "type": "text",
-      "default": "18.8 20.3 -156.1 -154.8"
+      "default": "'18.8 20.3 -156.1 -154.8'"
     },
     {
       "name": "track_number",
