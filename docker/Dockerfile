@@ -66,8 +66,13 @@ RUN echo "==========Install third party dependencies for ARIA-tools==========" \
 RUN ["/bin/bash", "--login", "-c", "python3", "${ARIATOOLSHOME}/setup.py", "build"]
 RUN ["/bin/bash", "--login", "-c", "python3", "${ARIATOOLSHOME}/setup.py", "install"]
 
+# Comment this out for local development
 USER root
 RUN ["chown", "-R", "1003:1003", "/opt/conda/envs"]
+
+# Comment this out for deployment
+#COPY --chown=ops:ops .netrc .netrc
+#RUN ["chmod", "og-rw", ".netrc"]
 
 USER ops
 CMD ["/opt/conda/bin/conda", "run", "-n", "ariaMintpy", "/bin/bash", "--login", "-c", "${wrapper_scripts_home}/run_pge_with_SNWE.sh"]
