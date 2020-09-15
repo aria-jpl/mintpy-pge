@@ -11,7 +11,19 @@
   "time_limit": 3600,
   "params": [
     {
-      "name": "latitude_longitude_bounds",
+      "name": "north_bound",
+      "destination": "positional"
+    },
+    {
+      "name": "south_bound",
+      "destination": "positional"
+    },
+    {
+      "name": "west_bound",
+      "destination": "positional"
+    },
+    {
+      "name": "east_bound",
       "destination": "positional"
     },
     {

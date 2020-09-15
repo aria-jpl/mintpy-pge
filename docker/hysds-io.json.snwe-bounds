@@ -4,10 +4,28 @@
   "enable_dedup": false,
   "params": [
     {
-      "name": "latitude_longitude_bounds",
+      "name": "north_bound",
       "from": "submitter",
       "type": "text",
-      "default": "'18.8 20.3 -156.1 -154.8'"
+      "default": "20.3"
+    },
+    {
+      "name": "south_bound",
+      "from": "submitter",
+      "type": "text",
+      "default": "18.8"
+    },
+    {
+      "name": "west_bound",
+      "from": "submitter",
+      "type": "text",
+      "default": "-156.1"
+    },
+    {
+      "name": "east_bound",
+      "from": "submitter",
+      "type": "text",
+      "default": "-154.8"
     },
     {
       "name": "track_number",

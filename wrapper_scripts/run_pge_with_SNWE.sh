@@ -26,10 +26,23 @@ echo "Running PGE"
 export PATH="/home/ops/.conda/envs/ariaMintpy/bin:${PATH}"
 echo "Using python: $(command -v python)"
 
-export latlongbounds="18.8 20.3 -156.1 -154.8"
-export command_to_run='python3 ${pge_root}/run_pge.py --bounds "${latlongbounds}" --tracknumber "124" --start "20181215" --end "20190121"'
+north_bound=$1
+south_bound=$2
+west_bound=$3
+east_bound=$4
+
+export bounds="${south_bound} ${north_bound} ${west_bound} ${east_bound}"
+export track_number=$5
+export start_date=$6
+export end_date=$7
+
+export command_to_run='python3 ${pge_root}/run_pge.py --bounds "${bounds}" --tracknumber "${track_number}" --start "${start_date}" --end "${end_date}"'
 echo "About to run: ${command_to_run}"
+
+# Comment out for deployment
 #conda run -n ariaMintpy /bin/bash -c "${command_to_run} > /dev/tty 2>&1"
+
+# Comment out for development
 conda run -n ariaMintpy /bin/bash -c "${command_to_run}"
 
 # generate dataset ID
@@ -48,6 +61,3 @@ echo "{\"version\": \"v1.0\"}" > $dataset_json_file
 # create minimal metadata file
 metadata_json_file=${id}/${id}.met.json
 echo "{}" > $metadata_json_file
-
-
-#python3 ${pge_root}/run_pge.py --bounds "18.8 20.3 -156.1 -154.8" --tracknumber "124" --start "20181215" --end "20190121"
