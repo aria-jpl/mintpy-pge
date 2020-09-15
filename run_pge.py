@@ -3,9 +3,16 @@ import argparse
 import os
 import subprocess
 
+import pandas as pd
+from shapely.geometry import Polygon
 
 # TODO: Clean up code
 # TODO: Python docstrings once code is cleaned up
+
+pge_root = '/home/ops/verdi/ops/mintpy-pge'
+# pge_root = '/home/parallels/dev/access-mintpy-pge'
+wrapper_script_dir = '{}/wrapper_scripts'.format(pge_root)
+
 
 def argument_parser():
     parse = argparse.ArgumentParser(description='Run MintPy with given parameters')
@@ -40,13 +47,12 @@ def argument_parser():
     return parse
 
 
-
 def parse_bounds(_):
     # TODO: implement validation
     return _
 
 
-def parse_shape_file(_):
+def parse_polygon(_):
     # TODO: implement validation
     return _
 
@@ -61,87 +67,99 @@ def parse_date(_):
     return _
 
 
-def main(**kwargs):
-    working_directory = os.path.abspath(os.getcwd())
-    print("Working directory: ", working_directory)
-
-    pge_root = '/home/ops/verdi/ops/mintpy-pge'
-    wrapper_script_dir = '{}/wrapper_scripts'.format(pge_root)
-
+def verify_dependencies():
     # Verifying if ARIA-tools is installed correctly
     try:
         import ARIAtools.shapefile_util as shputil
-    except:
-        raise Exception('ARIA-tools is missing from your PYTHONPATH, has not been installed correctly, or is missing a dependency')
+    except ImportError as err:
+        raise Exception(
+            f'ARIA-tools is missing from your PYTHONPATH, has not been installed correctly, or is missing a dependency: {err}')
 
     # Verifying if Mintpy is installed correctly
-    # verify if mintpy install is complete:
     try:
         import numpy as np
         from mintpy import view, tsview, plot_network, plot_transection, plot_coherence_matrix
-    except:
-        print("Looks like mintPy is not fully installed")
+    except ImportError as err:
+        raise Exception(f'Looks like mintPy is not fully installed: {err}')
 
-    work_dir = os.path.abspath(os.getcwd())
 
-    if kwargs.get('bounds') and kwargs.get('shape_file'):
-        raise Exception('Only one of "--bounds" and "--shapefile" may be supplied (both were supplied)')
+def get_bbox(kwargs):
+    if kwargs.get('bounds') and kwargs.get('polygon'):
+        raise Exception('Only one of "--bounds" and "--polygon" may be supplied (both were supplied)')
 
-    if not (kwargs.get('bounds') or kwargs.get('shape_file')):
-        raise Exception('Either "--bounds" or "--shapefile" must be supplied (neither were supplied)')
+    if not (kwargs.get('bounds') or kwargs.get('polygon')):
+        raise Exception('Either "--bounds" or "--polygon" must be supplied (neither were supplied)')
 
     if kwargs.get('bounds'):
         bbox = parse_bounds(kwargs.get('bounds'))
     else:
 
-        bbox = parse_shape_file(kwargs.get('shape_file'))
+        bbox = parse_polygon(kwargs.get('polygon'))
 
-    tracknumber = parse_track_number(kwargs.get('track_number'))
+    return bbox
 
-    start = parse_date(kwargs.get('start_date'))
-    end = parse_date(kwargs.get('end_date'))
 
-    # True/False for using virtual data download
-    virtualDownload = kwargs.get('virtual_download')
+def polygon_from_frame(frame):
+    """
+        Create a Shapely polygon from the coordinates of a frame.
+    """
+    return Polygon([(float(frame['Near Start Lon']), float(frame['Near Start Lat'])),
+                    (float(frame['Far Start Lon']), float(frame['Far Start Lat'])),
+                    (float(frame['Far End Lon']), float(frame['Far End Lat'])),
+                    (float(frame['Near End Lon']), float(frame['Near End Lat']))])
 
-    # no changes needed below
-    # Selecting the download option to be used in subsequent processing.
-    if virtualDownload:
-        download = 'url'
-        downloadDir = os.path.join(work_dir, 'URLproducts')
-    else:
-        download = 'download'
-        downloadDir = os.path.join(work_dir, 'products')
 
-    print("Work directory: ", work_dir)
+def list_time_series_files(working_dir):
+    subprocess.call(['ls', f'{working_dir}/stack'])
+    subprocess.call(['ls', f'{working_dir}/DEM/SRTM_3arcsec.dem'])
+    subprocess.call(['ls', f'{working_dir}/mask/watermask.msk'])
+
+
+def main(**kwargs):
+    verify_dependencies()
+
+    from ARIAtools.shapefile_util import open_shapefile, shapefile_area
+
+    working_dir = os.path.abspath(os.getcwd())
+
+    bounding_box = get_bbox(kwargs)
+    track_number = parse_track_number(kwargs.get('track_number'))
+    start_date = parse_date(kwargs.get('start_date'))
+    end_date = parse_date(kwargs.get('end_date'))
+    use_virtual_download: bool = kwargs.get('virtual_download')
+
+    download = 'url' if use_virtual_download else 'download'
+    downloads_dir = os.path.join(working_dir, 'URLproducts' if use_virtual_download else 'products')
+
+    print("Work directory: ", working_dir)
     print("Download: ", download)
-    print("Start: ", start)
-    print("End: ", end)
-    print("Track: ", tracknumber)
-    print("bbox: ", bbox)
+    print("Start: ", start_date)
+    print("End: ", end_date)
+    print("Track: ", track_number)
+    print("bbox: ", bounding_box)
 
     # Download the data products
     subprocess.call(
-        ['{}/download_data_products.sh'.format(wrapper_script_dir), tracknumber, downloadDir, bbox, start, end, download])
+        [f'{wrapper_script_dir}/download_data_products.sh', track_number, downloads_dir, bounding_box, start_date,
+         end_date, download])
 
-    ## Caling the DAAC API and retrieving the SLCs outlines
+    # # Call the DAAC API and retrieve the SLC's outlines
+
     # checking if bbox exist
-    from ARIAtools.shapefile_util import open_shapefile
-
-    if os.path.exists(os.path.abspath(bbox)):
-        bounds = open_shapefile(bbox, 0, 0).bounds
-        W, S, E, N = [str(i) for i in bounds]
+    if os.path.exists(os.path.abspath(bounding_box)):
+        bounds = open_shapefile(bounding_box, 0, 0).bounds
+        w, s, e, n = [str(i) for i in bounds]
     else:
         try:
-            S, N, W, E = bbox.split()
-        except:
+            s, n, w, e = bounding_box.split()
+        except ValueError:
             raise Exception(
                 'Cannot understand the --bbox argument. Input string was entered incorrectly or path does not exist.')
 
     url_base = 'https://api.daac.asf.alaska.edu/services/search/param?'
     url = '{}platform=SENTINEL-1&processinglevel=SLC&beamSwath=IW&output=CSV&maxResults=5000000'.format(url_base)
-    url += '&relativeOrbit={}'.format(tracknumber)
-    url += '&bbox=' + ','.join([W, S, E, N])
+    url += '&relativeOrbit={}'.format(track_number)
+    url += '&bbox=' + ','.join([w, s, e, n])
 
     # could also include start and end time for period. Needs to be of the form:
     # start=2018-12-15T00:00:00.000Z&end=2019-01-01T23:00:00.000Z
@@ -151,82 +169,59 @@ def main(**kwargs):
 
     subprocess.call(["wget", "-O", "test.csv", url])
 
-    import pandas as pd
-    from ARIAtools.shapefile_util import shapefile_area
-    from shapely.geometry import Polygon
-
-    def polygonFromFrame(frame):
-        '''
-            Create a Shapely polygon from the coordinates of a frame.
-        '''
-        P = Polygon([(float(frame['Near Start Lon']), float(frame['Near Start Lat'])),
-                     (float(frame['Far Start Lon']), float(frame['Far Start Lat'])),
-                     (float(frame['Far End Lon']), float(frame['Far End Lat'])),
-                     (float(frame['Near End Lon']), float(frame['Near End Lat']))])
-        return P
-
     track_metadata = pd.read_csv('test.csv', index_col=False)
 
     # Compute polygons
-    SLCPolygons = []
-    for frameNdx, frame in track_metadata.iterrows():
+    slc_polygons = []
+    for index, frame in track_metadata.iterrows():
         # Convert frame coords to polygon
-        SLCPolygons.append(polygonFromFrame(frame))
+        slc_polygons.append(polygon_from_frame(frame))
 
     # Find union of polygons
-    swathPolygon = SLCPolygons[0]
-    for SLCPolygon in SLCPolygons:
-        swathPolygon = swathPolygon.union(SLCPolygon)
-    print(swathPolygon)
-
-    import json
-
-    # Convert the bbox in a shapefile (SNWG option)
-    bboxCoord = [float(i) for i in bbox.split(' ')]
-    bboxPolygon = Polygon(([bboxCoord[2], bboxCoord[1]], [bboxCoord[3], bboxCoord[1]], [bboxCoord[3], bboxCoord[0]],
-                           [bboxCoord[2], bboxCoord[0]]))
+    swath_polygon = slc_polygons[0]
+    for slc_polygon in slc_polygons:
+        swath_polygon = swath_polygon.union(slc_polygon)
+    print(swath_polygon)
 
     # Load the shapefile (shapefile option)
     # bboxRead = json.loads(open('./user_bbox.json').read())
-    # bboxPolygon = Polygon(bboxRead['features'][0]['geometry']['coordinates'][0])
-
-    import json
+    # bounding_polygon = Polygon(bboxRead['features'][0]['geometry']['coordinates'][0])
 
     # Convert the bbox in a shapefile (SNWG option)
-    bboxCoord = [float(i) for i in bbox.split(' ')]
-    bboxPolygon = Polygon(([bboxCoord[2], bboxCoord[1]], [bboxCoord[3], bboxCoord[1]], [bboxCoord[3], bboxCoord[0]],
-                           [bboxCoord[2], bboxCoord[0]]))
+    frame_bounds = [float(i) for i in bounding_box.split(' ')]
+    bounding_polygon = Polygon(
+        ([frame_bounds[2], frame_bounds[1]], [frame_bounds[3], frame_bounds[1]], [frame_bounds[3], frame_bounds[0]],
+         [frame_bounds[2], frame_bounds[0]]))
 
     # Load the shapefile (shapefile option)
     # bboxRead = json.loads(open('./user_bbox.json').read())
     # bboxPolygon = Polygon(bboxRead['features'][0]['geometry']['coordinates'][0])
 
     # TODO use shapely intersect function.
-    bboxSwathPolygon = bboxPolygon.intersection(swathPolygon)
+    bounded_swath_polygon = bounding_polygon.intersection(swath_polygon)
 
     # TODO calculate shapely area.
-    minOverlap = shapefile_area(bboxSwathPolygon)
-    print("Common intersection has an area of %fkm\u00b2" % (minOverlap))
+    minimum_overlap = shapefile_area(bounded_swath_polygon)
+    print("Common intersection has an area of %fkm\u00b2" % minimum_overlap)
 
     # TODO for numerical issue, should make this area threshold a little bit smaller. i.e. 90% or so
-    minOverlap = minOverlap * 0.9
-    print("Minimum Area threshold set to 90%" + " or %fkm\u00b2" % (minOverlap))
+    minimum_overlap = minimum_overlap * 0.9
+    print("Minimum Area threshold set to 90%" + " or %fkm\u00b2" % minimum_overlap)
 
     print('Preparing time series using the following arguments:')
-    print('Working directory: {}'.format(working_directory))
-    print('Downloads directory: {}'.format(downloadDir))
-    print('Bounding-box: {}'.format(bbox))
-    print('Minimum overlap: {}'.format(minOverlap))
+    print('Working directory: {}'.format(working_dir))
+    print('Downloads directory: {}'.format(downloads_dir))
+    print('Bounding-box: {}'.format(bounding_box))
+    print('Minimum overlap: {}'.format(minimum_overlap))
 
     # Prepare the time-series data using ARIA-Tools
-    subprocess.call([f'{wrapper_script_dir}/prepare_time_series.sh', working_directory, downloadDir, bbox, str(minOverlap)])
+    subprocess.call([f'{wrapper_script_dir}/prepare_time_series.sh', working_dir, downloads_dir, bounding_box,
+                     str(minimum_overlap)])
 
-    subprocess.call(['ls', f'{working_directory}/stack'])
-    subprocess.call(['ls', f'{working_directory}/DEM/SRTM_3arcsec.dem'])
-    subprocess.call(['ls', f'{working_directory}/mask/watermask.msk'])
+    list_time_series_files(working_dir)
 
     # Run MintPy using the ARIA configuration
-    subprocess.call(['smallbaselineApp.py', f'{working_directory}/smallbaselineApp.cfg'])
+    subprocess.call(['smallbaselineApp.py', f'{working_dir}/smallbaselineApp.cfg'])
 
 
 if __name__ == '__main__':
