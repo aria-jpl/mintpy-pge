@@ -72,7 +72,7 @@ def main(**kwargs):
     try:
         import ARIAtools.shapefile_util as shputil
     except:
-        raise Exception('ARIA-tools is missing from your PYTHONPATH')
+        raise Exception('ARIA-tools is missing from your PYTHONPATH, has not been installed correctly, or is missing a dependency')
 
     # Verifying if Mintpy is installed correctly
     # verify if mintpy install is complete:
