@@ -1,5 +1,6 @@
 #!/usr/lib/python
 import argparse
+import json
 import os
 import subprocess
 
@@ -21,11 +22,11 @@ def argument_parser():
                        default=None,
                        help='Space-separated latitude/longitude bounds in order S, N, W, E',
                        dest='bounds')
-    parse.add_argument('-f', '--shapefile',
+    parse.add_argument('-p', '--polygon',
                        required=False,
                        default=None,
-                       help='Bounding-box shape file path',
-                       dest='shape_file')
+                       help='GeoJSON-compliant polygon geometry string',
+                       dest='polygon')
     parse.add_argument('-t', '--tracknumber',
                        required=True,
                        default=None,
@@ -83,7 +84,7 @@ def verify_dependencies():
         raise Exception(f'Looks like mintPy is not fully installed: {err}')
 
 
-def get_bbox(kwargs):
+def get_bounding_geojson_filename(kwargs):
     if kwargs.get('bounds') and kwargs.get('polygon'):
         raise Exception('Only one of "--bounds" and "--polygon" may be supplied (both were supplied)')
 
@@ -91,12 +92,51 @@ def get_bbox(kwargs):
         raise Exception('Either "--bounds" or "--polygon" must be supplied (neither were supplied)')
 
     if kwargs.get('bounds'):
-        bbox = parse_bounds(kwargs.get('bounds'))
+        frame_bounds = kwargs.get('bounds').split()
+        polygon_coordinates = [
+            [frame_bounds[2], frame_bounds[1]],
+            [frame_bounds[3], frame_bounds[1]],
+            [frame_bounds[3], frame_bounds[0]],
+            [frame_bounds[2], frame_bounds[0]]
+        ]
     else:
+        polygon_coordinates = json.loads(kwargs.get('polygon')).get('coordinates')[0]
 
-        bbox = parse_polygon(kwargs.get('polygon'))
+    # Ensure conformance with GeoJSON requirements (float-type members and closed ring)
+    polygon_coordinates = [[float(value) for value in point] for point in polygon_coordinates]
+    if not polygon_coordinates[0] == polygon_coordinates[-1]:
+        polygon_coordinates.append(polygon_coordinates[0])
 
-    return bbox
+    polygon_filename = os.path.join(pge_root, 'polygon.json')
+
+    with open(polygon_filename) as polygon_file:
+        polygon = json.load(polygon_file)
+
+    polygon['features'][0]['geometry']['coordinates'] = [polygon_coordinates, ]
+
+    with open(polygon_filename, 'w') as polygon_file:
+        json.dump(polygon, polygon_file)
+
+    return polygon_filename
+
+
+def get_track_metadata(track_number, bounds):
+    west_bound, south_bound, east_bound, north_bound = [str(bound) for bound in bounds]
+
+    url_base = 'https://api.daac.asf.alaska.edu/services/search/param?'
+    url = '{}platform=SENTINEL-1&processinglevel=SLC&beamSwath=IW&output=CSV&maxResults=5000000'.format(url_base)
+    url += '&relativeOrbit={}'.format(track_number)
+    url += '&bbox=' + ','.join([west_bound, south_bound, east_bound, north_bound])
+
+    # could also include start and end time for period. Needs to be of the form:
+    # start=2018-12-15T00:00:00.000Z&end=2019-01-01T23:00:00.000Z
+
+    url = url.replace(' ', '+')
+    print(url)
+
+    subprocess.call(["wget", "-O", "test.csv", url])
+
+    return pd.read_csv('test.csv', index_col=False)
 
 
 def polygon_from_frame(frame):
@@ -122,7 +162,7 @@ def main(**kwargs):
 
     working_dir = os.path.abspath(os.getcwd())
 
-    bounding_box = get_bbox(kwargs)
+    bounding_geojson_filename = get_bounding_geojson_filename(kwargs)
     track_number = parse_track_number(kwargs.get('track_number'))
     start_date = parse_date(kwargs.get('start_date'))
     end_date = parse_date(kwargs.get('end_date'))
@@ -136,40 +176,16 @@ def main(**kwargs):
     print("Start: ", start_date)
     print("End: ", end_date)
     print("Track: ", track_number)
-    print("bbox: ", bounding_box)
+    print("bbox: ", bounding_geojson_filename)
 
     # Download the data products
     subprocess.call(
-        [f'{wrapper_script_dir}/download_data_products.sh', track_number, downloads_dir, bounding_box, start_date,
+        [f'{wrapper_script_dir}/download_data_products.sh', track_number, downloads_dir, bounding_geojson_filename, start_date,
          end_date, download])
 
-    # # Call the DAAC API and retrieve the SLC's outlines
-
-    # checking if bbox exist
-    if os.path.exists(os.path.abspath(bounding_box)):
-        bounds = open_shapefile(bounding_box, 0, 0).bounds
-        w, s, e, n = [str(i) for i in bounds]
-    else:
-        try:
-            s, n, w, e = bounding_box.split()
-        except ValueError:
-            raise Exception(
-                'Cannot understand the --bbox argument. Input string was entered incorrectly or path does not exist.')
-
-    url_base = 'https://api.daac.asf.alaska.edu/services/search/param?'
-    url = '{}platform=SENTINEL-1&processinglevel=SLC&beamSwath=IW&output=CSV&maxResults=5000000'.format(url_base)
-    url += '&relativeOrbit={}'.format(track_number)
-    url += '&bbox=' + ','.join([w, s, e, n])
-
-    # could also include start and end time for period. Needs to be of the form:
-    # start=2018-12-15T00:00:00.000Z&end=2019-01-01T23:00:00.000Z
-
-    url = url.replace(' ', '+')
-    print(url)
-
-    subprocess.call(["wget", "-O", "test.csv", url])
-
-    track_metadata = pd.read_csv('test.csv', index_col=False)
+    # Call the DAAC API and retrieve the SLC's outlines
+    bounds = open_shapefile(bounding_geojson_filename, 0, 0).bounds
+    track_metadata = get_track_metadata(track_number, bounds)
 
     # Compute polygons
     slc_polygons = []
@@ -183,39 +199,26 @@ def main(**kwargs):
         swath_polygon = swath_polygon.union(slc_polygon)
     print(swath_polygon)
 
-    # Load the shapefile (shapefile option)
-    # bboxRead = json.loads(open('./user_bbox.json').read())
-    # bounding_polygon = Polygon(bboxRead['features'][0]['geometry']['coordinates'][0])
+    with open(bounding_geojson_filename) as bounding_geojson:
+        bounding_polygon = Polygon(json.load(bounding_geojson)['features'][0]['geometry']['coordinates'][0])
 
-    # Convert the bbox in a shapefile (SNWG option)
-    frame_bounds = [float(i) for i in bounding_box.split(' ')]
-    bounding_polygon = Polygon(
-        ([frame_bounds[2], frame_bounds[1]], [frame_bounds[3], frame_bounds[1]], [frame_bounds[3], frame_bounds[0]],
-         [frame_bounds[2], frame_bounds[0]]))
-
-    # Load the shapefile (shapefile option)
-    # bboxRead = json.loads(open('./user_bbox.json').read())
-    # bboxPolygon = Polygon(bboxRead['features'][0]['geometry']['coordinates'][0])
-
-    # TODO use shapely intersect function.
     bounded_swath_polygon = bounding_polygon.intersection(swath_polygon)
 
-    # TODO calculate shapely area.
-    minimum_overlap = shapefile_area(bounded_swath_polygon)
-    print("Common intersection has an area of %fkm\u00b2" % minimum_overlap)
+    overlap_area = shapefile_area(bounded_swath_polygon)
+    print("Common intersection has an area of %fkm\u00b2" % overlap_area)
 
-    # TODO for numerical issue, should make this area threshold a little bit smaller. i.e. 90% or so
-    minimum_overlap = minimum_overlap * 0.9
+    # Due to numerical issue (floating point error?), reduce threshold to 90%
+    minimum_overlap = overlap_area * 0.9
     print("Minimum Area threshold set to 90%" + " or %fkm\u00b2" % minimum_overlap)
 
     print('Preparing time series using the following arguments:')
     print('Working directory: {}'.format(working_dir))
     print('Downloads directory: {}'.format(downloads_dir))
-    print('Bounding-box: {}'.format(bounding_box))
+    print('Bounding-box: {}'.format(bounding_geojson_filename))
     print('Minimum overlap: {}'.format(minimum_overlap))
 
     # Prepare the time-series data using ARIA-Tools
-    subprocess.call([f'{wrapper_script_dir}/prepare_time_series.sh', working_dir, downloads_dir, bounding_box,
+    subprocess.call([f'{wrapper_script_dir}/prepare_time_series.sh', working_dir, downloads_dir, bounding_geojson_filename,
                      str(minimum_overlap)])
 
     list_time_series_files(working_dir)
@@ -227,7 +230,7 @@ def main(**kwargs):
 if __name__ == '__main__':
     args = argument_parser().parse_args()
     main(bounds=args.bounds,
-         shape_file=args.shape_file,
+         polygon=args.polygon,
          track_number=args.track_number,
          start_date=args.start_date,
          end_date=args.end_date,

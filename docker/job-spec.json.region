@@ -1,0 +1,30 @@
+{
+  "command": "/home/ops/verdi/ops/mintpy-pge/wrapper_scripts/run_pge_with_polygon.sh",
+  "imported_worker_files": {
+    "/home/ops/.netrc": "/home/ops/.netrc"
+  },
+  "disk_usage": "8GB",
+  "recommended-queues": [
+    "edunn-jplnet-dev"
+  ],
+  "soft_time_limit": 1800,
+  "time_limit": 3600,
+  "params": [
+    {
+      "name": "polygon",
+      "destination": "positional"
+    },
+    {
+      "name": "track_number",
+      "destination": "positional"
+    },
+    {
+      "name": "start_date",
+      "destination": "positional"
+    },
+    {
+      "name": "end_date",
+      "destination": "positional"
+    }
+  ]
+}
