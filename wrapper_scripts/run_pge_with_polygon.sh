@@ -21,12 +21,11 @@ echo "Running PGE"
 export PATH="/home/ops/.conda/envs/ariaMintpy/bin:${PATH}"
 echo "Using python: $(command -v python)"
 
-polygon=$1
-track_number=$2
-start_date=$3
-end_date=$4
+track_number=$1
+start_date=$2
+end_date=$3
 
-command_to_run="python3 ${pge_root}/run_pge.py --polygon "\"$polygon\"" --tracknumber "\"$track_number\"" --start "\"$start_date\"" --end "\"$end_date\"
+command_to_run="python3 ${pge_root}/run_pge.py -c --tracknumber "\"$track_number\"" --start "\"$start_date\"" --end "\"$end_date\"
 echo "About to run: ${command_to_run}"
 if [ $UID = 1003 ]; then
 #  Running on mamba cluster

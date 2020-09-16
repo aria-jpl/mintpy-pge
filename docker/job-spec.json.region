@@ -12,7 +12,7 @@
   "params": [
     {
       "name": "polygon",
-      "destination": "positional"
+      "destination": "context"
     },
     {
       "name": "track_number",

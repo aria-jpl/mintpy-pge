@@ -1,0 +1,52 @@
+{
+  "job_specification": {
+    "params": [
+      {
+        "destination": "context",
+        "name": "polygon",
+        "value": {
+          "coordinates": [
+            [
+              [
+                -156.40686035156253,
+                18.80751806940864
+              ],
+              [
+                -156.40686035156253,
+                20.33947636615292
+              ],
+              [
+                -154.73144531250003,
+                20.33947636615292
+              ],
+              [
+                -154.73144531250003,
+                18.80751806940864
+              ],
+              [
+                -156.40686035156253,
+                18.80751806940864
+              ]
+            ]
+          ],
+          "type": "polygon"
+        }
+      },
+      {
+        "destination": "positional",
+        "name": "track_number",
+        "value": "124"
+      },
+      {
+        "destination": "positional",
+        "name": "start_date",
+        "value": "20181215"
+      },
+      {
+        "destination": "positional",
+        "name": "end_date",
+        "value": "20190121"
+      }
+    ]
+  }
+}

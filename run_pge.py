@@ -22,11 +22,11 @@ def argument_parser():
                        default=None,
                        help='Space-separated latitude/longitude bounds in order S, N, W, E',
                        dest='bounds')
-    parse.add_argument('-p', '--polygon',
+    parse.add_argument('-c', '--polygonfromcontext',
                        required=False,
                        default=None,
-                       help='GeoJSON-compliant polygon geometry string',
-                       dest='polygon')
+                       help='Use geoJSON from _context.json "polygon" parameter',
+                       action='store_true')
     parse.add_argument('-t', '--tracknumber',
                        required=True,
                        default=None,
@@ -85,11 +85,11 @@ def verify_dependencies():
 
 
 def get_bounding_geojson_filename(kwargs):
-    if kwargs.get('bounds') and kwargs.get('polygon'):
-        raise Exception('Only one of "--bounds" and "--polygon" may be supplied (both were supplied)')
+    if kwargs.get('bounds') and kwargs.get('get_polygon_from_context'):
+        raise Exception('Only one of "--bounds" and "--get_polygon_from_context" may be supplied (both were supplied)')
 
-    if not (kwargs.get('bounds') or kwargs.get('polygon')):
-        raise Exception('Either "--bounds" or "--polygon" must be supplied (neither were supplied)')
+    if not (kwargs.get('bounds') or kwargs.get('get_polygon_from_context')):
+        raise Exception('Either "--bounds" or "--get_polygon_from_context" must be supplied (neither were supplied)')
 
     if kwargs.get('bounds'):
         frame_bounds = kwargs.get('bounds').split()
@@ -100,7 +100,12 @@ def get_bounding_geojson_filename(kwargs):
             [frame_bounds[2], frame_bounds[0]]
         ]
     else:
-        polygon_coordinates = json.loads(kwargs.get('polygon')).get('coordinates')[0]
+        working_dir = os.path.abspath(os.getcwd())
+        context_filepath = os.path.join(working_dir, '_context.json')
+        with open(context_filepath) as context_file:
+            context = json.loads(context_file.read())
+        polygon_arg = next(parameter['value'] for parameter in context['job_specification']['params'] if parameter['name'] == 'polygon')
+        polygon_coordinates = polygon_arg['coordinates'][0]
 
     # Ensure conformance with GeoJSON requirements (float-type members and closed ring)
     polygon_coordinates = [[float(value) for value in point] for point in polygon_coordinates]
@@ -230,7 +235,7 @@ def main(**kwargs):
 if __name__ == '__main__':
     args = argument_parser().parse_args()
     main(bounds=args.bounds,
-         polygon=args.polygon,
+         get_polygon_from_context=args.polygonfromcontext,
          track_number=args.track_number,
          start_date=args.start_date,
          end_date=args.end_date,
