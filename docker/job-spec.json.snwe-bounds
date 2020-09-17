@@ -7,8 +7,8 @@
   "recommended-queues": [
     "edunn-jplnet-dev"
   ],
-  "soft_time_limit": 1800,
-  "time_limit": 3600,
+  "soft_time_limit": 43200,
+  "time_limit": 86400,
   "params": [
     {
       "name": "north_bound",
