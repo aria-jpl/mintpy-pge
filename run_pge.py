@@ -1,5 +1,8 @@
 #!/usr/lib/python
 import argparse
+from datetime import datetime
+import glob
+import itertools
 import json
 import os
 import subprocess
@@ -105,7 +108,8 @@ def get_bounding_geojson_filename(kwargs):
         context_filepath = os.path.join(working_dir, '_context.json')
         with open(context_filepath) as context_file:
             context = json.loads(context_file.read())
-        polygon_arg = next(parameter['value'] for parameter in context['job_specification']['params'] if parameter['name'] == 'polygon')
+        polygon_arg = next(parameter['value'] for parameter in context['job_specification']['params'] if
+                           parameter['name'] == 'polygon')
         polygon_coordinates = polygon_arg['coordinates'][0]
 
     # Ensure conformance with GeoJSON requirements (float-type members and closed ring)
@@ -161,6 +165,21 @@ def list_time_series_files(working_dir):
     subprocess.call(['ls', f'{working_dir}/mask/watermask.msk'])
 
 
+def get_temporal_span(downloads_dir):
+    def extract_date_pair(filename):
+        date_chunk = next((chunk for chunk in filename.split('-') if
+                           len(chunk) == 17 and all([subchunk.isnumeric() for subchunk in chunk.split('_')])))
+        return date_chunk.split('_')
+
+    # TODO: Implement for virtual downloads as well
+    """Returns a pair of datetimes representing the earliest and latest datetimes for ASF downloaded files in the given directory"""
+    filenames = glob.glob(downloads_dir + '/*.nc')
+    datestring_pairs = map(extract_date_pair, filenames)
+    datestrings = itertools.chain.from_iterable(datestring_pairs)
+    dates = list(map(lambda x: datetime.strptime(x, '%Y%m%d'), datestrings))
+    return min(dates), max(dates)
+
+
 def main(**kwargs):
     verify_dependencies()
 
@@ -186,7 +205,8 @@ def main(**kwargs):
 
     # Download the data products
     subprocess.call(
-        [f'{wrapper_script_dir}/download_data_products.sh', track_number, downloads_dir, bounding_geojson_filename, start_date,
+        [f'{wrapper_script_dir}/download_data_products.sh', track_number, downloads_dir, bounding_geojson_filename,
+         start_date,
          end_date, download])
 
     # Call the DAAC API and retrieve the SLC's outlines
@@ -224,17 +244,27 @@ def main(**kwargs):
     print('Minimum overlap: {}'.format(minimum_overlap))
 
     # Prepare the time-series data using ARIA-Tools
-    subprocess.call([f'{wrapper_script_dir}/prepare_time_series.sh', working_dir, downloads_dir, bounding_geojson_filename,
-                     str(minimum_overlap)])
+    subprocess.call(
+        [f'{wrapper_script_dir}/prepare_time_series.sh', working_dir, downloads_dir, bounding_geojson_filename,
+         str(minimum_overlap)])
 
     list_time_series_files(working_dir)
 
     # Run MintPy using the ARIA configuration
     subprocess.call(['smallbaselineApp.py', f'{working_dir}/smallbaselineApp.cfg'])
 
-    dataset = Dataset(working_dir)
-    dataset.populate_definition()
-    dataset.populate_metadata()
+
+    # Stage data product for ingestion
+    dataset = Dataset('S1-TIMESERIES-MINTPY', working_dir)
+    sensing_start, sensing_end = get_temporal_span(downloads_dir)
+    with open(bounding_geojson_filename) as bounding_geojson_file:
+        location_geometry = json.load(bounding_geojson_file)['features'][0]['geometry']
+
+    dataset.populate_definition('MintPy Time Series', location_geometry, sensing_start, sensing_end)
+    dataset.populate_metadata({
+        'track': track_number
+    })
+
     dataset.assemble()
 
 

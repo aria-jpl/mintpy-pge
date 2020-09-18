@@ -1,6 +1,7 @@
 import json
 import os
 import subprocess
+from datetime import datetime
 from hashlib import md5
 from shutil import copyfile
 
@@ -17,9 +18,9 @@ class Dataset:
     definition = None
     metadata = None
 
-    def __init__(self, working_dir=os.getcwd()):
+    def __init__(self, id_prefix, working_dir=os.getcwd()):
         self.working_dir = working_dir
-        self.id = Dataset.generate_id()
+        self.id = Dataset.generate_id(id_prefix)
         self.staging_dir = os.path.join(self.working_dir, self.id)
 
         missing_files = []
@@ -35,17 +36,35 @@ class Dataset:
     def generate_id(id_prefix):
         timestamp = subprocess.check_output(['date', '-u', '+%Y%m%dT%H%M%S.%NZ']).decode().strip()
         hash_suffix = md5(timestamp.encode()).hexdigest()[0:5]
-        return f'{id_prefix}{timestamp}-{hash_suffix}'
+        return f'{id_prefix}-{timestamp}-{hash_suffix}'
 
-    def populate_definition(self):
-        self.definition = {
-            "version": "v1.0"
+    def populate_definition(
+            self,
+            label=None,
+            location_geometry: dict = None,
+            sensing_start: datetime = None,
+            sensing_end: datetime = None):
+
+        definition = {
+            "version": "v1.0",
         }
 
-    def populate_metadata(self):
-        self.metadata = {
+        if label:
+            definition.update({'label': label})
 
-        }
+        if location_geometry and all([key in location_geometry for key in ['type', 'coordinates']]):
+            definition.update({'location': location_geometry})
+
+        if sensing_start and sensing_end:
+            definition.update({
+                'starttime': sensing_start.strftime('%Y-%m-%dT%H:%M:%S'),
+                'endtime': sensing_end.strftime('%Y-%m-%dT%H:%M:%S')
+            })
+
+        self.definition = definition
+
+    def populate_metadata(self, metadata):
+        self.metadata = metadata
 
     def assemble(self):
 
