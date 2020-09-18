@@ -21,17 +21,38 @@ echo "Running PGE"
 export PATH="/home/ops/.conda/envs/ariaMintpy/bin:${PATH}"
 echo "Using python: $(command -v python)"
 
-north_bound=$1
-south_bound=$2
-west_bound=$3
-east_bound=$4
+mode=$1
 
-bounds="${south_bound} ${north_bound} ${west_bound} ${east_bound}"
-track_number=$5
-start_date=$6
-end_date=$7
+if [ $mode = frame ]; then
+  echo "Running in frame (SNWE bounds) mode"
+  north_bound=$2
+  south_bound=$3
+  west_bound=$4
+  east_bound=$5
 
-command_to_run="python3 ${pge_root}/run_pge.py --bounds "\"$bounds\"" --tracknumber "\"$track_number\"" --start "\"$start_date\"" --end "\"$end_date\"
+  bounds="${south_bound} ${north_bound} ${west_bound} ${east_bound}"
+  track_number=$6
+  start_date=$7
+  end_date=$8
+
+  command_to_run="python3 ${pge_root}/run_pge.py --bounds "\"$bounds\"" --tracknumber "\"$track_number\"" --start "\"$start_date\"" --end "\"$end_date\"
+
+
+
+elif [ $mode = region ]; then
+  echo "Running in region (GeoJSON polygon) mode"
+  track_number=$2
+  start_date=$3
+  end_date=$4
+
+  command_to_run="python3 ${pge_root}/run_pge.py -c --tracknumber "\"$track_number\"" --start "\"$start_date\"" --end "\"$end_date\"
+
+else
+  echo "Invalid mode: $mode"
+  exit 1
+
+fi
+
 echo "About to run: ${command_to_run}"
 if [ $UID = 1003 ]; then
 #  Running on mamba cluster

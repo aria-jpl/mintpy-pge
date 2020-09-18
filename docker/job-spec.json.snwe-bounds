@@ -1,5 +1,5 @@
 {
-  "command": "/home/ops/verdi/ops/mintpy-pge/wrapper_scripts/run_pge_with_SNWE.sh",
+  "command": "/home/ops/verdi/ops/mintpy-pge/wrapper_scripts/run.sh frame",
   "imported_worker_files": {
     "/home/ops/.netrc": "/home/ops/.netrc"
   },
