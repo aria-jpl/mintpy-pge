@@ -38,7 +38,7 @@ fi
 # generate dataset ID
 timestamp=$(date -u +%Y%m%dT%H%M%S.%NZ)
 hash=$(echo $timestamp | sha224sum | cut -c1-5)
-id=multi_temporal_anomaly_detection-${timestamp}-${hash}
+id=S1-TIMESERIES-MINTPY-${timestamp}-${hash}
 echo "dataset ID: $id"
 
 mkdir $id

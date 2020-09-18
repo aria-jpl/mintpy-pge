@@ -1,0 +1,24 @@
+{
+  "ipath": "hysds::data/S1-TIMESERIES-MINTPY",
+  "match_pattern": "/(?P<id>S1-TIMESERIES-MINTPY-(?P<year>\\d{4})(?P<month>\\d{2})(?P<day>\\d{2})T.*)$",
+  "alt_match_pattern": null,
+  "extractor": null,
+  "level": "l0",
+  "type": "timeseries",
+  "publish": {
+    "s3-profile-name": "default",
+    "location": "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/products/S1-TIMESERIES-MINTPY/{version}/{year}/{month}/{day}/{id}",
+    "urls": [
+      "http://{{ DATASET_BUCKET }}.{{ DATASET_S3_WEBSITE_ENDPOINT }}/products/S1-TIMESERIES-MINTPY/{version}/{year}/{month}/{day}/{id}",
+      "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/products/S1-TIMESERIES-MINTPY/{version}/{year}/{month}/{day}/{id}"
+    ]
+  },
+  "browse": {
+    "s3-profile-name": "default",
+    "location": "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/browse/S1-TIMESERIES-MINTPY/{version}/{year}/{month}/{day}/{id}",
+    "urls": [
+      "http://{{ DATASET_BUCKET }}.{{ DATASET_S3_WEBSITE_ENDPOINT }}/browse/S1-TIMESERIES-MINTPY/{version}/{year}/{month}/{day}/{id}",
+      "s3://{{ DATASET_S3_ENDPOINT }}:80/{{ DATASET_BUCKET }}/browse/S1-TIMESERIES-MINTPY/{version}/{year}/{month}/{day}/{id}"
+    ]
+  }
+}
