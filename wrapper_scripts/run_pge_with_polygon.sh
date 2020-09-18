@@ -42,7 +42,7 @@ id=multi_temporal_anomaly_detection-${timestamp}-${hash}
 echo "dataset ID: $id"
 
 mkdir $id
-cp timeseries.h5 velocity.h5 waterMask.h5 $id
+cp timeseries.h5 timeseries_demErr.h5 maskTempCoh.h5 velocity.h5 waterMask.h5 $id
 
 # create minimal dataset JSON file
 dataset_json_file=${id}/${id}.dataset.json
