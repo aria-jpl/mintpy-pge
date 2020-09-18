@@ -76,12 +76,13 @@ class Dataset:
             raise Exception(
                 'Cannot assemble Dataset files without first populating *.met.json using populate_metadata()')
 
+        os.mkdir(self.staging_dir)
+
         with open(os.path.join(self.staging_dir, f'{self.id}.dataset.json'), 'w+') as definition_file:
             json.dump(self.definition, definition_file)
 
         with open(os.path.join(self.staging_dir, f'{self.id}.met.json'), 'w+') as metadata_file:
             json.dump(self.metadata, metadata_file)
 
-        os.mkdir(self.staging_dir)
         for filename in self.required_files:
             copyfile(os.path.join(self.working_dir, filename), os.path.join(self.staging_dir, filename))
