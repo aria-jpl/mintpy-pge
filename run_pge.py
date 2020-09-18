@@ -9,6 +9,7 @@ from shapely.geometry import Polygon
 
 # TODO: Clean up code
 # TODO: Python docstrings once code is cleaned up
+from utils.Dataset import Dataset
 
 pge_root = '/home/ops/verdi/ops/mintpy-pge'
 # pge_root = '/home/parallels/dev/access-mintpy-pge'
@@ -230,6 +231,11 @@ def main(**kwargs):
 
     # Run MintPy using the ARIA configuration
     subprocess.call(['smallbaselineApp.py', f'{working_dir}/smallbaselineApp.cfg'])
+
+    dataset = Dataset(working_dir)
+    dataset.populate_definition()
+    dataset.populate_metadata()
+    dataset.assemble()
 
 
 if __name__ == '__main__':

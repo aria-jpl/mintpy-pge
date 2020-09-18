@@ -34,20 +34,3 @@ else
 #  Running in local dev environment
   conda run -n ariaMintpy /bin/bash -c "${command_to_run} > /dev/tty 2>&1"
 fi
-
-# generate dataset ID
-timestamp=$(date -u +%Y%m%dT%H%M%S.%NZ)
-hash=$(echo $timestamp | sha224sum | cut -c1-5)
-id=S1-TIMESERIES-MINTPY-${timestamp}-${hash}
-echo "dataset ID: $id"
-
-mkdir $id
-cp timeseries.h5 timeseries_demErr.h5 maskTempCoh.h5 velocity.h5 waterMask.h5 $id
-
-# create minimal dataset JSON file
-dataset_json_file=${id}/${id}.dataset.json
-echo "{\"version\": \"v1.0\"}" > $dataset_json_file
-
-# create minimal metadata file
-metadata_json_file=${id}/${id}.met.json
-echo "{}" > $metadata_json_file
