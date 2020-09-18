@@ -39,37 +39,17 @@ def argument_parser():
     parse.add_argument('-s', '--start',
                        required=True,
                        default=None,
-                       help='Start date (YYYYMMDD)',
+                       help='Start date (YYYY-MM-DD)',
                        dest='start_date')
     parse.add_argument('-e', '--end',
                        required=True,
                        default=None,
-                       help='End date (YYYYMMDD)',
+                       help='End date (YYYY-MM-DD)',
                        dest='end_date')
     parse.add_argument('-v', '--virtualdownload',
                        help='Enable virtual download to avoid unnecessary data transfer',
                        action='store_true')
     return parse
-
-
-def parse_bounds(_):
-    # TODO: implement validation
-    return _
-
-
-def parse_polygon(_):
-    # TODO: implement validation
-    return _
-
-
-def parse_track_number(_):
-    # TODO: implement validation
-    return _
-
-
-def parse_date(_):
-    # TODO: implement validation
-    return _
 
 
 def verify_dependencies():
@@ -166,13 +146,14 @@ def list_time_series_files(working_dir):
 
 
 def get_temporal_span(downloads_dir):
+    """Returns a pair of datetimes representing the earliest and latest datetimes for ASF downloaded files in the given directory"""
+
     def extract_date_pair(filename):
         date_chunk = next((chunk for chunk in filename.split('-') if
                            len(chunk) == 17 and all([subchunk.isnumeric() for subchunk in chunk.split('_')])))
         return date_chunk.split('_')
 
     # TODO: Implement for virtual downloads as well
-    """Returns a pair of datetimes representing the earliest and latest datetimes for ASF downloaded files in the given directory"""
     filenames = glob.glob(downloads_dir + '/*.nc')
     datestring_pairs = map(extract_date_pair, filenames)
     datestrings = itertools.chain.from_iterable(datestring_pairs)
@@ -188,9 +169,9 @@ def main(**kwargs):
     working_dir = os.path.abspath(os.getcwd())
 
     bounding_geojson_filename = get_bounding_geojson_filename(kwargs)
-    track_number = parse_track_number(kwargs.get('track_number'))
-    start_date = parse_date(kwargs.get('start_date'))
-    end_date = parse_date(kwargs.get('end_date'))
+    track_number = kwargs.get('track_number')
+    start_date = kwargs.get('start_date')
+    end_date = kwargs.get('end_date')
     use_virtual_download: bool = kwargs.get('virtual_download')
 
     download = 'url' if use_virtual_download else 'download'
@@ -206,8 +187,7 @@ def main(**kwargs):
     # Download the data products
     subprocess.call(
         [f'{wrapper_script_dir}/download_data_products.sh', track_number, downloads_dir, bounding_geojson_filename,
-         start_date,
-         end_date, download])
+         start_date.strftime("%Y%m%d"), end_date.strftime("%Y%m%d"), download])
 
     # Call the DAAC API and retrieve the SLC's outlines
     bounds = open_shapefile(bounding_geojson_filename, 0, 0).bounds
@@ -272,7 +252,7 @@ if __name__ == '__main__':
     args = argument_parser().parse_args()
     main(bounds=args.bounds,
          get_polygon_from_context=args.polygonfromcontext,
-         track_number=args.track_number,
-         start_date=args.start_date,
-         end_date=args.end_date,
+         track_number=int(args.track_number),
+         start_date=datetime.strptime(args.start_date, '%Y-%m-%d'),
+         end_date=datetime.strptime(args.end_date, '%Y-%m-%d'),
          virtual_download=args.virtualdownload)

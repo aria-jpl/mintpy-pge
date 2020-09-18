@@ -1,5 +1,5 @@
 {
-  "label": "MintPy Time Series (Polygon)",
+  "label": "MintPy Time Series (from Tosca region polygon)",
   "submission_type": "individual",
   "enable_dedup": false,
   "params": [
@@ -11,20 +11,22 @@
     {
       "name": "track_number",
       "from": "submitter",
-      "type": "text",
-      "default": "124"
+      "type": "number",
+      "optional": false
     },
     {
       "name": "start_date",
       "from": "submitter",
-      "type": "text",
-      "default": "20181215"
+      "type": "date",
+      "default": "2000-01-01"
+      "optional": false
     },
     {
       "name": "end_date",
       "from": "submitter",
-      "type": "text",
-      "default": "20190121"
+      "type": "date",
+      "default": "2099-01-01"
+      "optional": false
     }
   ]
 }
