@@ -139,6 +139,37 @@ def polygon_from_frame(frame):
                     (float(frame['Near End Lon']), float(frame['Near End Lat']))])
 
 
+def get_bounded_swath_polygon(track_metadata, bounding_geojson_filename):
+    """Returns the intersection of all SLC polygons and the bounding polygon"""
+
+    # Compute polygons
+    slc_polygons = []
+    for index, frame in track_metadata.iterrows():
+        # Convert frame coords to polygon
+        slc_polygons.append(polygon_from_frame(frame))
+
+    swath_polygon = slc_polygons[0]
+    for slc_polygon in slc_polygons:
+        swath_polygon = swath_polygon.union(slc_polygon)
+    print(swath_polygon)
+
+    with open(bounding_geojson_filename) as bounding_geojson:
+        bounding_polygon = Polygon(json.load(bounding_geojson)['features'][0]['geometry']['coordinates'][0])
+
+    return bounding_polygon.intersection(swath_polygon)
+
+
+def get_minimum_overlap(bounded_swath_polygon):
+    from ARIAtools.shapefile_util import shapefile_area
+
+    overlap_area = shapefile_area(bounded_swath_polygon)
+    print("Common intersection has an area of %fkm\u00b2" % overlap_area)
+
+    # Due to numerical issue (floating point error?), reduce threshold to 90%
+    minimum_overlap = overlap_area * 0.9
+    print("Minimum Area threshold set to 90%" + " or %fkm\u00b2" % minimum_overlap)
+
+
 def list_time_series_files(working_dir):
     subprocess.call(['ls', f'{working_dir}/stack'])
     subprocess.call(['ls', f'{working_dir}/DEM/SRTM_3arcsec.dem'])
@@ -164,7 +195,7 @@ def get_temporal_span(downloads_dir):
 def main(**kwargs):
     verify_dependencies()
 
-    from ARIAtools.shapefile_util import open_shapefile, shapefile_area
+    from ARIAtools.shapefile_util import open_shapefile
 
     working_dir = os.path.abspath(os.getcwd())
 
@@ -193,29 +224,9 @@ def main(**kwargs):
     bounds = open_shapefile(bounding_geojson_filename, 0, 0).bounds
     track_metadata = get_track_metadata(track_number, bounds)
 
-    # Compute polygons
-    slc_polygons = []
-    for index, frame in track_metadata.iterrows():
-        # Convert frame coords to polygon
-        slc_polygons.append(polygon_from_frame(frame))
+    bounded_swath_polygon = get_bounded_swath_polygon(track_metadata, bounding_geojson_filename)
 
-    # Find union of polygons
-    swath_polygon = slc_polygons[0]
-    for slc_polygon in slc_polygons:
-        swath_polygon = swath_polygon.union(slc_polygon)
-    print(swath_polygon)
-
-    with open(bounding_geojson_filename) as bounding_geojson:
-        bounding_polygon = Polygon(json.load(bounding_geojson)['features'][0]['geometry']['coordinates'][0])
-
-    bounded_swath_polygon = bounding_polygon.intersection(swath_polygon)
-
-    overlap_area = shapefile_area(bounded_swath_polygon)
-    print("Common intersection has an area of %fkm\u00b2" % overlap_area)
-
-    # Due to numerical issue (floating point error?), reduce threshold to 90%
-    minimum_overlap = overlap_area * 0.9
-    print("Minimum Area threshold set to 90%" + " or %fkm\u00b2" % minimum_overlap)
+    minimum_overlap = get_minimum_overlap(bounded_swath_polygon)
 
     print('Preparing time series using the following arguments:')
     print('Working directory: {}'.format(working_dir))
@@ -232,7 +243,6 @@ def main(**kwargs):
 
     # Run MintPy using the ARIA configuration
     subprocess.call(['smallbaselineApp.py', f'{working_dir}/smallbaselineApp.cfg'])
-
 
     # Stage data product for ingestion
     dataset = Dataset('S1-TIMESERIES-MINTPY', working_dir)
