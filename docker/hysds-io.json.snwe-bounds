@@ -6,31 +6,31 @@
     {
       "name": "north_bound",
       "from": "submitter",
-      "type": "number",
-      "default": 20.3
+      "type": "text",
+      "default": "20.3"
     },
     {
       "name": "south_bound",
       "from": "submitter",
       "type": "number",
-      "default": 18.8
+      "default": "18.8"
     },
     {
       "name": "west_bound",
       "from": "submitter",
       "type": "number",
-      "default": -156.1
+      "default": "-156.1"
     },
     {
       "name": "east_bound",
       "from": "submitter",
       "type": "number",
-      "default": -154.8
+      "default": "-154.8"
     },
     {
       "name": "track_number",
       "from": "submitter",
-      "type": "number",
+      "type": "text",
       "optional": false
     },
     {

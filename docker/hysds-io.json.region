@@ -11,7 +11,7 @@
     {
       "name": "track_number",
       "from": "submitter",
-      "type": "number",
+      "type": "text",
       "optional": false
     },
     {
