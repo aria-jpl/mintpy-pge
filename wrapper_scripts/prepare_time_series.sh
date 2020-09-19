@@ -8,5 +8,4 @@ minimum_overlap=$4
 conda_base=$(conda info --base)
 source "${conda_base}/etc/profile.d/conda.sh"
 conda activate ariaMintpy
-echo 'ariaTSsetup.py -f "${download_dir}/*.nc" -b "$bounding_box" --mask Download --dem Download -mo "$minimum_overlap" --workdir "$working_directory"'
-ariaTSsetup.py -f "${download_dir}/*.nc" -b "$bounding_box" --mask Download --dem Download -mo "$minimum_overlap"
+ariaTSsetup.py -f "${download_dir}/*.nc" -b "$bounding_box" --mask Download --dem Download -mo "$minimum_overlap " --workdir "$working_directory"
