@@ -13,8 +13,8 @@ from shapely.geometry import Polygon
 
 # TODO: Clean up code
 # TODO: Python docstrings once code is cleaned up
-from pge.Dataset import Dataset
-from pge.RunConfig import RunConfig
+from Dataset import Dataset
+from RunConfig import RunConfig
 
 
 def argument_parser():
