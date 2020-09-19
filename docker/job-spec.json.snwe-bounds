@@ -3,7 +3,7 @@
   "imported_worker_files": {
     "/home/ops/.netrc": "/home/ops/.netrc"
   },
-  "disk_usage": "8GB",
+  "disk_usage": "32GB",
   "recommended-queues": [
     "edunn-jplnet-dev"
   ],
