@@ -8,11 +8,16 @@ from shutil import copyfile
 
 class Dataset:
     required_files = [
+        # Filepath relative to working directory
         'maskTempCoh.h5',
         'timeseries.h5',
         'timeseries_demErr.h5',
         'velocity.h5',
         'waterMask.h5'
+        'inputs/geometrygeo.h5',
+        'demErr.h5',
+        'avgSpatialCoh.h5',
+        'temporalCoherence.h5'
     ]
 
     definition = None
