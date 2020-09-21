@@ -74,7 +74,7 @@ RUN ["chown", "-R", "1003:1003", "/home/ops/verdi/ops/mintpy-pge/polygon.json"]
 # Comment this out for deployment
 #COPY --chown=ops:ops .netrc .netrc
 #RUN ["chmod", "og-rw", ".netrc"]
-#COPY example_context.json _context.json
+#COPY examples/_context.json _context.json
 
 USER ops
 CMD ["/opt/conda/bin/conda", "run", "-n", "ariaMintpy", "/bin/bash", "--login", "-c", "${wrapper_scripts_home}/run_pge_with_SNWE.sh"]
