@@ -13,8 +13,8 @@ class Dataset:
         'timeseries.h5',
         'timeseries_demErr.h5',
         'velocity.h5',
-        'waterMask.h5'
-        'inputs/geometrygeo.h5',
+        'waterMask.h5',
+        'inputs/geometryGeo.h5',
         'demErr.h5',
         'avgSpatialCoh.h5',
         'temporalCoherence.h5'
