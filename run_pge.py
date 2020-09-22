@@ -85,6 +85,12 @@ def download_raw_products(run_config: RunConfig) -> None:
     ])
 
 
+def verify_successful_download():
+    downloaded_product_count = len(glob.glob('products/*.nc')) > 0
+    if downloaded_product_count < 1:
+        raise RuntimeError("Failed to download any inteferograms from ASF")
+
+
 def get_track_metadata(track_number: int, bounds):
     west_bound, south_bound, east_bound, north_bound = [str(bound) for bound in bounds]
 
@@ -156,7 +162,11 @@ def get_minimum_overlap(bounded_swath_polygon: Polygon) -> float:
     return minimum_overlap
 
 
-def prepare_time_series(minimum_overlap: float, run_config: RunConfig) -> None:
+def prepare_time_series(run_config: RunConfig) -> None:
+    print('Calculating minimum_overlap...')
+    bounded_swath_polygon = get_bounded_swath_polygon(run_config.track_number, run_config.bounding_geojson_filename)
+    minimum_overlap = get_minimum_overlap(bounded_swath_polygon)
+
     print(f'Preparing time series with minimum overlap={minimum_overlap}:')
 
     subprocess.call([
@@ -167,20 +177,30 @@ def prepare_time_series(minimum_overlap: float, run_config: RunConfig) -> None:
         str(minimum_overlap)
     ])
 
-    print('Checking time series preparation output')
-    verify_time_series_files(run_config.working_dir)
 
+def verify_time_series_preparation(working_dir) -> None:
+    required_files = [
+        './stack/cohStack.vrt',
+        './stack/connCompStack.vrt',
+        './stack/unwrapStack.vrt',
+        './DEM/SRTM_3arcsec.dem',
+        './mask/watermask.msk',
+    ]
 
-def verify_time_series_files(working_dir) -> None:
-    # TODO: Replace with actual check raising exception on failure
-    subprocess.call(['ls', f'{working_dir}/stack'])
-    subprocess.call(['ls', f'{working_dir}/DEM/SRTM_3arcsec.dem'])
-    subprocess.call(['ls', f'{working_dir}/mask/watermask.msk'])
+    missing_files = [filepath for filepath in required_files if not os.path.isfile(os.path.join(working_dir, filepath))]
+    print('Checking time series preparation output...')
+    if len(missing_files) > 0:
+        raise RuntimeError(f'Some time-series preparation files were not created: {",".join(missing_files)}')
+    else:
+        print('All required time-series files are present')
 
 
 def run_mintpy(working_dir) -> None:
-    """Runs MintPy using path/to/working_dir/smallbaselineApp.cfg"""
-    subprocess.call(['smallbaselineApp.py', f'{working_dir}/smallbaselineApp.cfg'])
+    mintpy_app = 'smallbaselineApp.py'
+    mintpy_config = f'{working_dir}/smallbaselineApp.cfg'
+
+    print(f'Running MintPy {mintpy_app} using config at {mintpy_config}')
+    subprocess.call([mintpy_app, mintpy_config])
 
 
 def get_temporal_span(downloads_dir) -> (datetime, datetime):
@@ -201,7 +221,7 @@ def get_temporal_span(downloads_dir) -> (datetime, datetime):
 
 
 def generate_product(run_config: RunConfig) -> None:
-    dataset = Dataset('S1-TIMESERIES-MINTPY', run_config.working_dir)
+    dataset = Dataset('S1-TIMESERIES-MINTPY')
     sensing_start, sensing_end = get_temporal_span(run_config.downloads_dir)
     with open(run_config.bounding_geojson_filename) as bounding_geojson_file:
         location_geometry = json.load(bounding_geojson_file)['features'][0]['geometry']
@@ -220,13 +240,27 @@ def main(**kwargs) -> None:
     run_config = RunConfig(working_dir=os.path.abspath(os.getcwd()), **kwargs)
     run_config.print_job_arguments()
 
-    download_raw_products(run_config)
+    try:
+        download_raw_products(run_config)
+    except Exception as err:
+        print(f'Error in download_raw_products(): {err}')
+        raise err
 
-    bounded_swath_polygon = get_bounded_swath_polygon(run_config.track_number, run_config.bounding_geojson_filename)
-    minimum_overlap = get_minimum_overlap(bounded_swath_polygon)
-    prepare_time_series(minimum_overlap, run_config)
+    verify_successful_download()
 
-    run_mintpy(run_config.working_dir)
+    try:
+        prepare_time_series(run_config)
+    except Exception as err:
+        print(f'Error in prepare_time_series(): {err}')
+        raise err
+
+    verify_time_series_preparation(run_config.working_dir)
+
+    try:
+        run_mintpy(run_config.working_dir)
+    except Exception as err:
+        print(f'Error in run_mintpy(): {err}')
+        raise err
 
     generate_product(run_config)
 
