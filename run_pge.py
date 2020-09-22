@@ -221,7 +221,7 @@ def get_temporal_span(downloads_dir) -> (datetime, datetime):
 
 
 def generate_product(run_config: RunConfig) -> None:
-    dataset = Dataset('S1-TIMESERIES-MINTPY', run_config.working_dir)
+    dataset = Dataset('S1-TIMESERIES-MINTPY')
     sensing_start, sensing_end = get_temporal_span(run_config.downloads_dir)
     with open(run_config.bounding_geojson_filename) as bounding_geojson_file:
         location_geometry = json.load(bounding_geojson_file)['features'][0]['geometry']
