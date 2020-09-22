@@ -89,5 +89,6 @@ class Dataset:
         with open(os.path.join(self.staging_dir, f'{self.id}.met.json'), 'w+') as metadata_file:
             json.dump(self.metadata, metadata_file)
 
-        for filename in self.required_files:
-            copyfile(os.path.join(self.working_dir, filename), os.path.join(self.staging_dir, filename))
+        for relative_filepath in self.required_files:
+            filename = os.path.split(relative_filepath)[1]
+            copyfile(os.path.join(self.working_dir, relative_filepath), os.path.join(self.staging_dir, filename))
