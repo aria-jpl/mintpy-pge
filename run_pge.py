@@ -162,7 +162,11 @@ def get_minimum_overlap(bounded_swath_polygon: Polygon) -> float:
     return minimum_overlap
 
 
-def prepare_time_series(minimum_overlap: float, run_config: RunConfig) -> None:
+def prepare_time_series(run_config: RunConfig) -> None:
+    print('Calculating minimum_overlap...')
+    bounded_swath_polygon = get_bounded_swath_polygon(run_config.track_number, run_config.bounding_geojson_filename)
+    minimum_overlap = get_minimum_overlap(bounded_swath_polygon)
+
     print(f'Preparing time series with minimum overlap={minimum_overlap}:')
 
     subprocess.call([
@@ -190,8 +194,11 @@ def verify_time_series_preparation(working_dir) -> None:
         print('All required time-series files are present')
 
 def run_mintpy(working_dir) -> None:
-    """Runs MintPy using path/to/working_dir/smallbaselineApp.cfg"""
-    subprocess.call(['smallbaselineApp.py', f'{working_dir}/smallbaselineApp.cfg'])
+    mintpy_app = 'smallbaselineApp.py'
+    mintpy_config = f'{working_dir}/smallbaselineApp.cfg'
+
+    print(f'Running MintPy {mintpy_app} using config at {mintpy_config}')
+    subprocess.call([mintpy_app, mintpy_config])
 
 
 def get_temporal_span(downloads_dir) -> (datetime, datetime):
@@ -234,9 +241,7 @@ def main(**kwargs) -> None:
     download_raw_products(run_config)
     verify_successful_download()
 
-    bounded_swath_polygon = get_bounded_swath_polygon(run_config.track_number, run_config.bounding_geojson_filename)
-    minimum_overlap = get_minimum_overlap(bounded_swath_polygon)
-    prepare_time_series(minimum_overlap, run_config)
+    prepare_time_series(run_config)
     verify_time_series_preparation(run_config.working_dir)
 
     run_mintpy(run_config.working_dir)
