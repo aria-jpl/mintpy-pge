@@ -60,6 +60,5 @@ if [ $UID = 1003 ]; then
   conda run -n ariaMintpy /bin/bash -c "${command_to_run} > out.log 2>err.log"
 else
 #  Running in local dev environment
-  conda run -n ariaMintpy /bin/bash -c "${command_to_run} > out.log 2>err.log"
-#  conda run -n ariaMintpy /bin/bash -c "${command_to_run} > /dev/tty 2>&1"
+  conda run -n ariaMintpy /bin/bash -c "${command_to_run} > /dev/tty 2>&1"
 fi
