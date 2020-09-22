@@ -177,6 +177,7 @@ def prepare_time_series(run_config: RunConfig) -> None:
         str(minimum_overlap)
     ])
 
+
 def verify_time_series_preparation(working_dir) -> None:
     required_files = [
         './stack/cohStack.vrt',
@@ -192,6 +193,7 @@ def verify_time_series_preparation(working_dir) -> None:
         raise RuntimeError(f'Some time-series preparation files were not created: {",".join(missing_files)}')
     else:
         print('All required time-series files are present')
+
 
 def run_mintpy(working_dir) -> None:
     mintpy_app = 'smallbaselineApp.py'
@@ -238,13 +240,27 @@ def main(**kwargs) -> None:
     run_config = RunConfig(working_dir=os.path.abspath(os.getcwd()), **kwargs)
     run_config.print_job_arguments()
 
-    download_raw_products(run_config)
+    try:
+        download_raw_products(run_config)
+    except Exception as err:
+        print(f'Error in download_raw_products(): {err}')
+        raise err
+
     verify_successful_download()
 
-    prepare_time_series(run_config)
+    try:
+        prepare_time_series(run_config)
+    except Exception as err:
+        print(f'Error in prepare_time_series(): {err}')
+        raise err
+
     verify_time_series_preparation(run_config.working_dir)
 
-    run_mintpy(run_config.working_dir)
+    try:
+        run_mintpy(run_config.working_dir)
+    except Exception as err:
+        print(f'Error in run_mintpy(): {err}')
+        raise err
 
     generate_product(run_config)
 
