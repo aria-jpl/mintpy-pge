@@ -1,12 +1,8 @@
 # IDE Files
 .idea
+
+# Credentials
 .netrc
 
-# Local Virtual Environment
-**/venv
-
-# Project Dependencies
-ARIA-tools
-ARIAtools
-MintPy
-mintpy
+# Local-dev mock of _context.json
+./_context.json
