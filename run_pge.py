@@ -85,6 +85,12 @@ def download_raw_products(run_config: RunConfig) -> None:
     ])
 
 
+def verify_successful_download():
+    downloaded_product_count = len(glob.glob('products/*.nc')) > 0
+    if downloaded_product_count < 1:
+        raise RuntimeError("Failed to download any inteferograms from ASF")
+
+
 def get_track_metadata(track_number: int, bounds):
     west_bound, south_bound, east_bound, north_bound = [str(bound) for bound in bounds]
 
@@ -167,16 +173,21 @@ def prepare_time_series(minimum_overlap: float, run_config: RunConfig) -> None:
         str(minimum_overlap)
     ])
 
-    print('Checking time series preparation output')
-    verify_time_series_files(run_config.working_dir)
+def verify_time_series_preparation(working_dir) -> None:
+    required_files = [
+        './stack/cohStack.vrt',
+        './stack/connCompStack.vrt',
+        './stack/unwrapStack.vrt',
+        './DEM/SRTM_3arcsec.dem',
+        './mask/watermask.msk',
+    ]
 
-
-def verify_time_series_files(working_dir) -> None:
-    # TODO: Replace with actual check raising exception on failure
-    subprocess.call(['ls', f'{working_dir}/stack'])
-    subprocess.call(['ls', f'{working_dir}/DEM/SRTM_3arcsec.dem'])
-    subprocess.call(['ls', f'{working_dir}/mask/watermask.msk'])
-
+    missing_files = [filepath for filepath in required_files if not os.path.isfile(os.path.join(working_dir, filepath))]
+    print('Checking time series preparation output...')
+    if len(missing_files) > 0:
+        raise RuntimeError(f'Some time-series preparation files were not created: {",".join(missing_files)}')
+    else:
+        print('All required time-series files are present')
 
 def run_mintpy(working_dir) -> None:
     """Runs MintPy using path/to/working_dir/smallbaselineApp.cfg"""
@@ -221,10 +232,12 @@ def main(**kwargs) -> None:
     run_config.print_job_arguments()
 
     download_raw_products(run_config)
+    verify_successful_download()
 
     bounded_swath_polygon = get_bounded_swath_polygon(run_config.track_number, run_config.bounding_geojson_filename)
     minimum_overlap = get_minimum_overlap(bounded_swath_polygon)
     prepare_time_series(minimum_overlap, run_config)
+    verify_time_series_preparation(run_config.working_dir)
 
     run_mintpy(run_config.working_dir)
 
