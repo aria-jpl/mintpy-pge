@@ -27,7 +27,7 @@ RUN set -ex \
  && git clone https://github.com/aria-tools/ARIA-tools.git \
  && echo "==========Checking out the correct pinned release for ARIA-tools==========" \
  && pushd ARIA-tools \
- && git checkout "v1.1.1" \
+ && git checkout "dev" \
  && popd \
  && echo "==========Cloning MintPy==========" \
  && git clone https://github.com/insarlab/MintPy.git \
@@ -67,14 +67,14 @@ RUN ["/bin/bash", "--login", "-c", "python3", "${ARIATOOLSHOME}/setup.py", "buil
 RUN ["/bin/bash", "--login", "-c", "python3", "${ARIATOOLSHOME}/setup.py", "install"]
 
 # Comment this out for local development
-USER root
-RUN ["chown", "-R", "1003:1003", "/opt/conda/envs"]
-RUN ["chown", "-R", "1003:1003", "/home/ops/verdi/ops/mintpy-pge/polygon.json"]
+#USER root
+#RUN ["chown", "-R", "1003:1003", "/opt/conda/envs"]
+#RUN ["chown", "-R", "1003:1003", "/home/ops/verdi/ops/mintpy-pge/polygon.json"]
 
 # Comment this out for deployment
-#COPY --chown=ops:ops .netrc .netrc
-#RUN ["chmod", "og-rw", ".netrc"]
-#COPY examples/_context.json _context.json
+COPY --chown=ops:ops .netrc .netrc
+RUN ["chmod", "og-rw", ".netrc"]
+COPY examples/_context.json _context.json
 
 USER ops
 CMD ["/opt/conda/bin/conda", "run", "-n", "ariaMintpy", "/bin/bash", "--login", "-c", "${wrapper_scripts_home}/run_pge_with_SNWE.sh"]
