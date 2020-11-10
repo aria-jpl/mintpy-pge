@@ -24,7 +24,9 @@ USER ops
 RUN set -ex \
  && cd $verdi_root \
  && echo "==========Cloning ARIA-tools==========" \
- && git clone https://github.com/aria-tools/ARIA-tools.git \
+# Apply bandaid fixes for broken ARIA-tools
+# && git clone https://github.com/aria-tools/ARIA-tools.git \
+ && git clone https://github.com/alexdunncs/ARIA-tools.git \
  && echo "==========Checking out the correct pinned release for ARIA-tools==========" \
  && pushd ARIA-tools \
  && git checkout "dev" \
