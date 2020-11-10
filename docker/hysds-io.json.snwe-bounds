@@ -6,7 +6,7 @@
     {
       "name": "north_bound",
       "from": "submitter",
-      "type": "text",
+      "type": "number",
       "default": "20.3"
     },
     {
