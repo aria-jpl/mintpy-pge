@@ -23,11 +23,11 @@ class Dataset:
     definition = None
     metadata = None
 
-    def __init__(self, id_prefix, **kwargs):
+    def __init__(self, id_prefix, track_number, sensing_end, orbit_direction='unk', **kwargs):
         self.working_dir = kwargs.get('working_dir') if kwargs.get('working_dir') else os.getcwd()
 
         context_filename = os.path.join(self.working_dir, '_context.json')
-        self.id = Dataset.generate_id(id_prefix, context_filename)
+        self.id = Dataset.generate_id(id_prefix, context_filename, track_number, sensing_end, orbit_direction)
         self.staging_dir = os.path.join(self.working_dir, self.id)
 
         missing_files = []
@@ -40,13 +40,13 @@ class Dataset:
                 f'The following required files are missing from "{self.working_dir}": {", ".join(missing_files)}')
 
     @staticmethod
-    def generate_id(id_prefix, context_filename):
-        timestamp = subprocess.check_output(['date', '-u', '+%Y%m%dT%H%M%S.%NZ']).decode().strip()
+    def generate_id(id_prefix: str, context_filename: str, track_number: int, sensing_end: datetime, orbit_direction: str):
+        direction_char = orbit_direction.upper()[0]
 
         with open(context_filename) as context_file:
             hash_suffix = md5(context_file.read().encode()).hexdigest()[0:5]
 
-        job_id = f'{id_prefix}-{timestamp}-{hash_suffix}'
+        job_id = f'{id_prefix}-{direction_char}{track_number}-{sensing_end.strftime("%Y%m%d")}-{hash_suffix}'
         print(f'Generated job ID: {job_id}')
         return job_id
 
@@ -54,6 +54,8 @@ class Dataset:
             self,
             label=None,
             location_geometry: dict = None,
+            track_number: int = None,
+            orbit_direction: str = None,
             sensing_start: datetime = None,
             sensing_end: datetime = None):
 
@@ -71,6 +73,16 @@ class Dataset:
             definition.update({
                 'starttime': sensing_start.strftime('%Y-%m-%dT%H:%M:%S'),
                 'endtime': sensing_end.strftime('%Y-%m-%dT%H:%M:%S')
+            })
+
+        if track_number:
+            definition.update({
+                'track_number': track_number,
+            })
+
+        if orbit_direction and orbit_direction in ['asc', 'dsc']:
+            definition.update({
+                'orbit direction': orbit_direction,
             })
 
         self.definition = definition
