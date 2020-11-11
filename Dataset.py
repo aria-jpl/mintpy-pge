@@ -54,6 +54,8 @@ class Dataset:
             self,
             label=None,
             location_geometry: dict = None,
+            track_number: int = None,
+            orbit_direction: str = None,
             sensing_start: datetime = None,
             sensing_end: datetime = None):
 
@@ -71,6 +73,16 @@ class Dataset:
             definition.update({
                 'starttime': sensing_start.strftime('%Y-%m-%dT%H:%M:%S'),
                 'endtime': sensing_end.strftime('%Y-%m-%dT%H:%M:%S')
+            })
+
+        if track_number:
+            definition.update({
+                'track_number': track_number,
+            })
+
+        if orbit_direction and orbit_direction in ['asc', 'dsc']:
+            definition.update({
+                'orbit direction': orbit_direction,
             })
 
         self.definition = definition

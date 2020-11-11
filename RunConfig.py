@@ -1,9 +1,11 @@
+import csv
 import json
 import os
 from datetime import datetime
 
 
 class RunConfig:
+    track_metadata_filename = 'track_metadata.csv'
     def __init__(self, **kwargs):
         self.pge_root: str = kwargs.get('pge_root') if kwargs.get('pge_root') else '/home/ops/verdi/ops/mintpy-pge'
         self.wrapper_script_dir: str = '{}/wrapper_scripts'.format(self.pge_root)
@@ -71,3 +73,12 @@ class RunConfig:
         print("End: ", self.end_date)
         print("Track number: ", self.track_number)
         print("BBox file: ", self.bounding_geojson_filename)
+
+    def get_orbit_direction(self):
+        if not os.path.isfile(self.track_metadata_filename):
+            raise Exception(f'Cannot parse orbital direction - {self.track_metadata_filename} does not exist')
+
+        with open(self.track_metadata_filename) as track_metadata_file:
+            track_metadata = csv.DictReader(track_metadata_file)
+            raw_value = next(track_metadata).get('Ascending or Descending?')
+            return 'asc' if raw_value == 'ASCENDING' else 'dsc' if raw_value == 'DESCENDING' else 'unk'

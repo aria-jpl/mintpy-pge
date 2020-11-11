@@ -105,9 +105,9 @@ def get_track_metadata(track_number: int, bounds):
     url = url.replace(' ', '+')
     print(url)
 
-    subprocess.call(["wget", "-O", "test.csv", url])
+    subprocess.call(["wget", "-O", RunConfig.track_metadata_filename, url])
 
-    return pd.read_csv('test.csv', index_col=False)
+    return pd.read_csv(RunConfig.track_metadata_filename, index_col=False)
 
 
 def get_slc_polygons(track_metadata) -> List[Polygon]:
@@ -226,7 +226,7 @@ def generate_product(run_config: RunConfig) -> None:
     with open(run_config.bounding_geojson_filename) as bounding_geojson_file:
         location_geometry = json.load(bounding_geojson_file)['features'][0]['geometry']
 
-    dataset.populate_definition('MintPy Time Series', location_geometry, sensing_start, sensing_end)
+    dataset.populate_definition('MintPy Time Series', location_geometry, run_config.track_number, run_config.get_orbit_direction(), sensing_start, sensing_end)
     dataset.populate_metadata({
         'track': run_config.track_number
     })
