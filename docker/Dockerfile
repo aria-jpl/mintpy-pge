@@ -32,15 +32,16 @@ RUN set -ex \
  && git checkout "dev" \
  && popd \
  && echo "==========Cloning MintPy==========" \
- && git clone https://github.com/insarlab/MintPy.git \
- && echo "==========Checking out the latest release for MintPy==========" \
- && pushd MintPy \
-# && mintpyPath=$(pwd) \
- && latesttag=$(git describe --tags) \
- && IFS='-' read -ra latestRelease <<< "${latesttag}" ; unset IFS \
- && echo "${latestRelease}" \
- && git checkout ${latestRelease} \
- && popd
+ # Apply bandaid fixes for broken ARIA-tools by using main rather than a release
+ && git clone https://github.com/insarlab/MintPy.git
+# && git clone https://github.com/insarlab/MintPy.git \
+# && echo "==========Checking out the latest release for MintPy==========" \
+# && pushd MintPy \
+# && latesttag=$(git describe --tags) \
+# && IFS='-' read -ra latestRelease <<< "${latesttag}" ; unset IFS \
+# && echo "${latestRelease}" \
+# && git checkout ${latestRelease} \
+# && popd
 
 
 # Set necessary environment variables
