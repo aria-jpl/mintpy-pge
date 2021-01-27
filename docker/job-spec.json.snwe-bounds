@@ -1,7 +1,7 @@
 {
-  "command": "/home/ops/verdi/ops/mintpy-pge/wrapper_scripts/run.sh frame",
+  "command": "/export/home/hysdsops/verdi/ops/mintpy-pge/wrapper_scripts/run.sh frame",
   "imported_worker_files": {
-    "/home/ops/.netrc": "/home/ops/.netrc"
+    "/export/home/hysdsops/.netrc": "/export/home/hysdsops/.netrc"
   },
   "disk_usage": "64GB",
   "recommended-queues": [
