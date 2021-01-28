@@ -35,7 +35,7 @@ RUN set -ex \
 RUN set -ex \
  && cd $verdi_root \
  && echo "==========Cloning MintPy==========" \
- && git clone https://github.com/insarlab/MintPy.git
+ && git clone https://github.com/insarlab/MintPy.git \
  && echo "==========Checking out the latest release for MintPy==========" \
  && pushd MintPy \
  && latest_tag=$(git describe --tags --abbrev=0) \
