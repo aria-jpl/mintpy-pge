@@ -5,7 +5,7 @@
   },
   "disk_usage": "64GB",
   "recommended-queues": [
-    "edunn-jplnet-dev"
+    "factotum-job_worker-small"
   ],
   "soft_time_limit": 43200,
   "time_limit": 86400,
