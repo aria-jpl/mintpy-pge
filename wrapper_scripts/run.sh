@@ -18,7 +18,7 @@ echo "Copying MintPy config to working directory"
 cp "${pge_root}/smallbaselineApp.cfg" "./smallbaselineApp.cfg"
 
 echo "Running PGE"
-export PATH="/export/home/hysdsops/.conda/envs/ariaMintpy/bin:${PATH}"
+export PATH="/home/ops/.conda/envs/ariaMintpy/bin:${PATH}"
 echo "Using python: $(command -v python)"
 
 mode=$1

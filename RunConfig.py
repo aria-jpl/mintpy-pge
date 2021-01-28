@@ -7,7 +7,7 @@ from datetime import datetime
 class RunConfig:
     track_metadata_filename = 'track_metadata.csv'
     def __init__(self, **kwargs):
-        self.pge_root: str = kwargs.get('pge_root') if kwargs.get('pge_root') else '/export/home/hysdsops/verdi/ops/mintpy-pge'
+        self.pge_root: str = kwargs.get('pge_root') if kwargs.get('pge_root') else '/home/ops/verdi/ops/mintpy-pge'
         self.wrapper_script_dir: str = '{}/wrapper_scripts'.format(self.pge_root)
         self.working_dir: str = kwargs.get('working_dir') if kwargs.get('working_dir') else os.path.abspath(os.getcwd())
 
