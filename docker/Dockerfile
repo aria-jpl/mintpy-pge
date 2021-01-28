@@ -30,12 +30,15 @@ RUN set -ex \
  && echo "==========Checking out the correct pinned release for ARIA-tools==========" \
  && pushd ARIA-tools \
  && git checkout "dev" \
- && popd \
+ && popd
+
+RUN set -ex \
+ && cd $verdi_root \
  && echo "==========Cloning MintPy==========" \
  && git clone https://github.com/insarlab/MintPy.git
  && echo "==========Checking out the latest release for MintPy==========" \
- && pushd MintPy
- && latest_tag=$(git describe --tags --abbrev=0)
+ && pushd MintPy \
+ && latest_tag=$(git describe --tags --abbrev=0) \
  && git checkout ${latest_tag} \
  && popd
 
