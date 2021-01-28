@@ -1,4 +1,4 @@
-FROM hysds/pge-base:v3.0.5
+FROM hysds/pge-base:develop-es1
 MAINTAINER edunn "Alexander.E.Dunn@jpl.nasa.gov"
 LABEL description="Multi-Temporal Anomaly Detection for SAR Earth Observations MintPy PGE"
 
