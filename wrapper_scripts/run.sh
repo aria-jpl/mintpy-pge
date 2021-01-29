@@ -55,8 +55,8 @@ fi
 
 echo "About to run: ${command_to_run}"
 echo "For STDOUT and STDERR of internal processes, check out.log and err.log"
-if [ $UID = 1003 ]; then
-#  Running on mamba cluster
+if [ $UID = 4001 ]; then
+#  Running on SOAMC cluster
   conda run -n ariaMintpy /bin/bash -c "${command_to_run} > out.log 2>err.log"
 else
 #  Running in local dev environment
