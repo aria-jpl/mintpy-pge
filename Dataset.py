@@ -91,6 +91,7 @@ class Dataset:
         self.metadata = metadata
 
     def assemble(self):
+        print('Assembling Dataset')
 
         if self.definition is None:
             raise Exception(
@@ -100,14 +101,18 @@ class Dataset:
             raise Exception(
                 'Cannot assemble Dataset files without first populating *.met.json using populate_metadata()')
 
+        print(f'Creating staging directory at {self.staging_dir}')
         os.mkdir(self.staging_dir)
 
+        print('Copying *.dataset.json')
         with open(os.path.join(self.staging_dir, f'{self.id}.dataset.json'), 'w+') as definition_file:
             json.dump(self.definition, definition_file)
 
+        print('Copying *.met.json')
         with open(os.path.join(self.staging_dir, f'{self.id}.met.json'), 'w+') as metadata_file:
             json.dump(self.metadata, metadata_file)
 
+        print(f'Copying in required files: {self.required_files}')
         for relative_filepath in self.required_files:
             filename = os.path.split(relative_filepath)[1]
             copyfile(os.path.join(self.working_dir, relative_filepath), os.path.join(self.staging_dir, filename))

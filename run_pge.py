@@ -221,6 +221,7 @@ def get_temporal_span(downloads_dir) -> (datetime, datetime):
 
 
 def generate_product(run_config: RunConfig) -> None:
+    print('Generating final product')
     track_number = run_config.track_number
     orbit_direction = run_config.get_orbit_direction()
     sensing_start, sensing_end = get_temporal_span(run_config.downloads_dir)
