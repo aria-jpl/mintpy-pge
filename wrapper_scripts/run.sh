@@ -23,12 +23,28 @@ echo "Using python: $(command -v python)"
 
 mode=$1
 
+# function for floating-point comparison
+compare() (IFS=" "
+  exec awk "BEGIN{if (!($*)) exit(1)}"
+)
+
 if [ $mode = frame ]; then
   echo "Running in frame (SNWE bounds) mode"
   north_bound=$2
   south_bound=$3
   west_bound=$4
   east_bound=$5
+
+
+  if compare "${north_bound} < ${south_bound}"; then
+    echo "ERROR: north bound ${north_bound} must be greater than south bound ${south_bound}"
+    exit 1
+  fi
+
+  if compare "${west_bound} < ${east_bound}"; then
+    echo "ERROR: west_bound bound ${west_bound} must be greater than east bound ${east_bound}"
+    exit 1
+  fi
 
   bounds="${south_bound} ${north_bound} ${west_bound} ${east_bound}"
   track_number=$6
