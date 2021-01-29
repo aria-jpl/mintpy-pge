@@ -41,8 +41,8 @@ if [ $mode = frame ]; then
     exit 1
   fi
 
-  if compare "${west_bound} < ${east_bound}"; then
-    echo "ERROR: west_bound bound ${west_bound} must be greater than east bound ${east_bound}"
+  if compare "${east_bound} < ${west_bound}"; then
+    echo "ERROR: east_bound bound ${east_bound} must be greater than west_bound bound ${west_bound}"
     exit 1
   fi
 
@@ -79,3 +79,9 @@ else
   conda run -n ariaMintpy /bin/bash -c "${command_to_run} > out.log 2>err.log"
 #  conda run -n ariaMintpy /bin/bash -c "${command_to_run} > /dev/tty 2>&1"
 fi
+
+echo CONTENTS OF out.log:
+cat out.log
+
+echo CONTENTS OF err.log:
+cat err.log
