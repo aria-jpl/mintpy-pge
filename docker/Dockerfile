@@ -39,7 +39,8 @@ RUN set -ex \
  && echo "==========Checking out the latest release for MintPy==========" \
  && pushd MintPy \
  && latest_tag=$(git describe --tags --abbrev=0) \
- && git checkout ${latest_tag} \
+# && git checkout ${latest_tag} \
+ && git checkout 2c7bbbe5af598d8db1f7779c6f100de7ccb18845 \
  && popd
 
 
