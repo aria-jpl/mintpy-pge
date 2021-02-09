@@ -46,7 +46,13 @@ class RunConfig:
                 context = json.loads(context_file.read())
             polygon_arg = next(parameter['value'] for parameter in context['job_specification']['params'] if
                                parameter['name'] == 'polygon')
-            polygon_coordinates = polygon_arg['coordinates'][0]
+            try:
+                polygon_coordinates = polygon_arg['coordinates'][0]
+            except TypeError:
+                try:
+                    polygon_coordinates = json.loads(polygon_arg)
+                except json.decoder.JSONDecodeError:
+                    raise ValueError(f'Error: could not decode region from polygon argument: "{polygon_arg}"')
 
         # Ensure conformance with GeoJSON requirements (float-type members and closed ring)
         polygon_coordinates = [[float(value) for value in point] for point in polygon_coordinates]
