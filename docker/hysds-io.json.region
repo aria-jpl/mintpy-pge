@@ -6,7 +6,8 @@
     {
       "name": "polygon",
       "from": "submitter",
-      "type": "region"
+      "type": "text",
+      "default": "[[-180, -90], [-180, 90], [180, 90], [180, -90], [-180, -90]]"
     },
     {
       "name": "track_number",
